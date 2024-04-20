@@ -8,6 +8,7 @@ import (
 
 func main() {
 	router := gin.Default()
-	router.GET("/exemplu", queries.GetEXEMPLU)
+
+	queries.Route_stefan(router)
 	router.Run("localhost:9000")
 }

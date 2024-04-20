@@ -1,4 +1,4 @@
-package queries
+package stefan
 
 import (
 	"net/http"
@@ -8,6 +8,6 @@ import (
 
 // Exemplu de functie HTTP
 // FUNCTIILE INCEP CU LITERA MARE
-func GetEXEMPLU(context *gin.Context) {
-	context.IndentedJSON(http.StatusOK, "HELLO!")
+func STEVE(context *gin.Context) {
+	context.IndentedJSON(http.StatusOK, "STEFAN")
 }
