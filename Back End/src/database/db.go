@@ -3,15 +3,11 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 )
-
-const DB_USERNAME = "lab"
-const DB_PASSWORD = "stefan"
-const DB_NAME = "catalog"
-const DB_HOST = "127.0.0.1"
-const DB_PORT = "3306"
 
 var Db *sql.DB
 
@@ -21,19 +17,32 @@ func InitDb() *sql.DB {
 }
 
 func connectDB() *sql.DB {
+	err1 := godotenv.Load()
+
+	if err1 != nil {
+		fmt.Println("Error loading .env file: %v", err1)
+		return nil
+	}
+	DB_USERNAME := os.Getenv("user")
+	DB_PASSWORD := os.Getenv("pass")
+	DB_NAME := os.Getenv("nume")
+	DB_HOST := os.Getenv("host")
+	DB_PORT := os.Getenv("port")
+
 	var err error
 	ruta := DB_USERNAME + ":" + DB_PASSWORD + "@tcp" + "(" + DB_HOST + ":" + DB_PORT + ")/" + DB_NAME
-
 	db, err := sql.Open("mysql", ruta)
 
 	if err != nil {
 		fmt.Println("Error connecting to database : error=%v", err)
+
 		return nil
 	}
 	//defer db.Close()
 	err = db.Ping()
 	if err != nil {
 		fmt.Println("Error verifying connection to database : error=%v", err)
+
 		return nil
 	}
 
