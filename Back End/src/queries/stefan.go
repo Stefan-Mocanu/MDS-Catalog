@@ -9,7 +9,7 @@ import (
 func Route_stefan(router gin.IRouter) {
 	router.GET("/stefan", stefan.STEVE)
 	router.GET("/exemplu", stefan.GetEXEMPLU)
-	router.POST("/signin", stefan.Signin)
+	router.POST("/signup", stefan.Signup)
 	router.POST("login", stefan.Login)
 	router.POST("logout", stefan.Logout)
 }
