@@ -85,7 +85,15 @@ func Login(context *gin.Context) {
 	database.CloseDB(db)
 
 }
-
+func IsSessionActive(context *gin.Context) {
+	cookie, err := context.Cookie("session_cookie")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	_, ok := Sessions[cookie]
+	context.IndentedJSON(http.StatusOK, ok)
+}
 func Logout(context *gin.Context) {
 
 	cookie, err := context.Cookie("session_cookie")
