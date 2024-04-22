@@ -14,9 +14,9 @@ import (
 )
 
 type session struct {
-	nume    string
-	prenume string
-	id      int
+	NUME    string `json:"nume"`
+	PRENUME string `json:"prenume"`
+	ID      int    `json:"id"`
 }
 
 var Sessions = map[string]session{}
@@ -72,9 +72,9 @@ func Login(context *gin.Context) {
 		if bcrypt.CompareHashAndPassword(hashed, parola) == nil {
 			sessionToken := uuid.NewString()
 			Sessions[sessionToken] = session{
-				nume:    nume,
-				prenume: prenume,
-				id:      id,
+				NUME:    nume,
+				PRENUME: prenume,
+				ID:      id,
 			}
 			context.SetCookie("session_cookie", sessionToken, int(time.Now().Add(120*time.Second).Unix()), "/", "", true, true)
 			context.Done()
@@ -88,11 +88,15 @@ func Login(context *gin.Context) {
 func IsSessionActive(context *gin.Context) {
 	cookie, err := context.Cookie("session_cookie")
 	if err != nil {
-		fmt.Println(err)
+		context.IndentedJSON(http.StatusOK, false)
 		return
 	}
-	_, ok := Sessions[cookie]
-	context.IndentedJSON(http.StatusOK, ok)
+	content, ok := Sessions[cookie]
+	if !ok {
+		context.IndentedJSON(http.StatusOK, false)
+		return
+	}
+	context.IndentedJSON(http.StatusOK, content)
 }
 func Logout(context *gin.Context) {
 
