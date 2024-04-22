@@ -20,7 +20,7 @@ func connectDB() *sql.DB {
 	err1 := godotenv.Load()
 
 	if err1 != nil {
-		fmt.Println("Error loading .env file: %v", err1)
+		fmt.Printf("Error loading .env file: %v", err1)
 		return nil
 	}
 	DB_USERNAME := os.Getenv("user")
@@ -34,14 +34,14 @@ func connectDB() *sql.DB {
 	db, err := sql.Open("mysql", ruta)
 
 	if err != nil {
-		fmt.Println("Error connecting to database : error=%v", err)
+		fmt.Printf("Error connecting to database : error=%v", err)
 
 		return nil
 	}
 	//defer db.Close()
 	err = db.Ping()
 	if err != nil {
-		fmt.Println("Error verifying connection to database : error=%v", err)
+		fmt.Printf("Error verifying connection to database : error=%v", err)
 
 		return nil
 	}

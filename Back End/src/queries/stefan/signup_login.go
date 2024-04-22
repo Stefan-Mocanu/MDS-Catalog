@@ -29,7 +29,7 @@ func Signup(context *gin.Context) {
 	parola, err1 := bcrypt.GenerateFromPassword([]byte(context.PostForm("parola")), 10)
 
 	if err1 != nil {
-		fmt.Println("Eroare: %v", err1)
+		fmt.Printf("Eroare: %v", err1)
 		context.IndentedJSON(http.StatusInternalServerError, 500)
 	}
 	var a int
@@ -42,7 +42,7 @@ func Signup(context *gin.Context) {
 	case err2 == sql.ErrNoRows:
 		context.IndentedJSON(http.StatusOK, "Inserat cu succes!")
 	case err2 != nil:
-		fmt.Println("Eroare: %v", err2)
+		fmt.Printf("Eroare: %v", err2)
 		context.IndentedJSON(http.StatusInternalServerError, 500)
 	default:
 		//context.IndentedJSON(http.StatusOK, "")
@@ -66,7 +66,7 @@ func Login(context *gin.Context) {
 		return
 
 	case err1 != nil:
-		fmt.Println("Eroare: %v", err1)
+		fmt.Printf("Eroare: %v", err1)
 		context.IndentedJSON(http.StatusInternalServerError, 500)
 	default:
 		if bcrypt.CompareHashAndPassword(hashed, parola) == nil {
@@ -76,7 +76,6 @@ func Login(context *gin.Context) {
 				prenume: prenume,
 				id:      id,
 			}
-			fmt.Println(sessionToken)
 			context.SetCookie("session_cookie", sessionToken, int(time.Now().Add(120*time.Second).Unix()), "/", "", true, true)
 			context.Done()
 		} else {

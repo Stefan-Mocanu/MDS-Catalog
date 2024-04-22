@@ -19,11 +19,11 @@ func STEVE(context *gin.Context) {
 	switch {
 
 	case err == sql.ErrNoRows:
-		fmt.Println("Eroare: %v", err)
+		fmt.Printf("Eroare: %v", err)
 
 		context.IndentedJSON(http.StatusInternalServerError, 500)
 	case err != nil:
-		fmt.Println("Eroare: %v", err)
+		fmt.Printf("Eroare: %v", err)
 		context.IndentedJSON(http.StatusInternalServerError, 500)
 	default:
 		context.IndentedJSON(http.StatusOK, a)
