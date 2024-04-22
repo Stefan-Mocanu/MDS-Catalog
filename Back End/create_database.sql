@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 20, 2024 at 10:31 PM
+-- Generation Time: Apr 22, 2024 at 01:07 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -57,10 +57,17 @@ CREATE TABLE `clasa` (
 CREATE TABLE `cont` (
   `id` int(11) NOT NULL,
   `email` varchar(50) DEFAULT NULL,
-  `parola` varchar(50) DEFAULT NULL,
+  `parola` varchar(100) DEFAULT NULL,
   `nume` varchar(50) DEFAULT NULL,
   `prenume` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `cont`
+--
+
+INSERT INTO `cont` (`id`, `email`, `parola`, `nume`, `prenume`) VALUES
+(7, 'stefan.mocanu@sss.tv', '$2a$10$4kDqWxUdm6XV4QluXCXBReqTntgbnFP6r0d59FESFUROH2SBaGRZm', 'Mocanu', 'Stefan');
 
 -- --------------------------------------------------------
 
@@ -192,7 +199,8 @@ ALTER TABLE `clasa`
 -- Indexes for table `cont`
 --
 ALTER TABLE `cont`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `cont_rol`
@@ -265,7 +273,7 @@ ALTER TABLE `activitate`
 -- AUTO_INCREMENT for table `cont`
 --
 ALTER TABLE `cont`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `note`
