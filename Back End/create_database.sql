@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 22, 2024 at 01:07 PM
+-- Generation Time: Apr 23, 2024 at 03:49 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -80,6 +80,13 @@ CREATE TABLE `cont_rol` (
   `id_rol` varchar(30) NOT NULL,
   `id_scoala` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `cont_rol`
+--
+
+INSERT INTO `cont_rol` (`id_cont`, `id_rol`, `id_scoala`) VALUES
+(7, 'Administrator', 1);
 
 -- --------------------------------------------------------
 
@@ -166,6 +173,16 @@ CREATE TABLE `roluri` (
   `nume_rol` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+--
+-- Dumping data for table `roluri`
+--
+
+INSERT INTO `roluri` (`nume_rol`) VALUES
+('Administrator'),
+('Elev'),
+('Parinte'),
+('Profesor');
+
 -- --------------------------------------------------------
 
 --
@@ -176,6 +193,13 @@ CREATE TABLE `scoala` (
   `id` int(11) NOT NULL,
   `nume` varchar(200) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `scoala`
+--
+
+INSERT INTO `scoala` (`id`, `nume`) VALUES
+(1, 'Scoala Gimnaziala C-tin Platon Bacau');
 
 --
 -- Indexes for dumped tables
@@ -285,7 +309,7 @@ ALTER TABLE `note`
 -- AUTO_INCREMENT for table `scoala`
 --
 ALTER TABLE `scoala`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables

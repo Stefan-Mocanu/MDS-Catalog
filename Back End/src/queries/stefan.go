@@ -13,4 +13,5 @@ func Route_stefan(router gin.IRouter) {
 	router.POST("/login", stefan.Login)
 	router.POST("/logout", stefan.Logout)
 	router.GET("/sessionActive", stefan.IsSessionActive)
+	router.GET("/getRoluri", stefan.GetRoluri)
 }
