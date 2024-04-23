@@ -41,7 +41,7 @@ func Info_Materii(context *gin.Context) {
 		numeMaterie := line[0] // Presupunând că numele clasei se află pe prima poziție în fiecare linie
 
 		// Inserează clasa în baza de date
-		insertStatement := "INSERT INTO disciplina (id_scoala, nume) VALUES (?, ?)"
+		insertStatement := "INSERT INTO discipline (id_scoala, nume) VALUES (?, ?)"
 		_, err := db.Exec(insertStatement, idScoala, numeMaterie)
 		if err != nil {
 			fmt.Println("Eroare la inserarea clasei în baza de date:", err)
