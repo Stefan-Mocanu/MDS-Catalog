@@ -15,7 +15,7 @@ import (
 
 type rol struct {
 	ROL    string `json:"rol"`
-	SCOALA string `json:"scoala`
+	SCOALA string `json:"scoala"`
 }
 
 func GetRoluri(context *gin.Context) {
