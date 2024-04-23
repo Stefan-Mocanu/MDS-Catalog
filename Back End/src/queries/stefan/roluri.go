@@ -21,7 +21,7 @@ type rol struct {
 
 func GetRoluri(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
-	var roluri []rol
+	var roluri []rol = []rol{}
 	cookie, err := context.Cookie("session_cookie")
 	if err != nil {
 		context.IndentedJSON(http.StatusOK, false)
