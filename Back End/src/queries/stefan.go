@@ -14,4 +14,6 @@ func Route_stefan(router gin.IRouter) {
 	router.POST("/logout", stefan.Logout)
 	router.GET("/sessionActive", stefan.IsSessionActive)
 	router.GET("/getRoluri", stefan.GetRoluri)
+	router.POST("/insertMaterie", stefan.Info_Materii)
+	router.POST("/insertIncadrare", stefan.Info_incadrare)
 }
