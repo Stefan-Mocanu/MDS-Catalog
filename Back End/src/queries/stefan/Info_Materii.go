@@ -16,7 +16,7 @@ func Info_Materii(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
 
 	// Extrage ID-ul școlii din parametrii cererii
-	idScoala := context.Query("id_scoala")
+	idScoala := context.PostForm("id_scoala")
 
 	// Extrage fișierul CSV din corpul cererii
 	file, _, err := context.Request.FormFile("csv_file")

@@ -16,8 +16,7 @@ func Info_clase(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
 
 	// Extrage ID-ul școlii din parametrii cererii
-	idScoala := context.Query("id_scoala")
-
+	idScoala := context.PostForm("id_scoala")
 	// Extrage fișierul CSV din corpul cererii
 	file, _, err := context.Request.FormFile("csv_file")
 	if err != nil {
@@ -39,7 +38,6 @@ func Info_clase(context *gin.Context) {
 	for _, line := range csvData {
 		// Extrage numele clasei din linie
 		numeClasa := line[0] // Presupunând că numele clasei se află pe prima poziție în fiecare linie
-
 		// Inserează clasa în baza de date
 		insertStatement := "INSERT INTO clasa (id_scoala, nume) VALUES (?, ?)"
 		_, err := db.Exec(insertStatement, idScoala, numeClasa)
