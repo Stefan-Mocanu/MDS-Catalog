@@ -16,6 +16,7 @@ import (
 type rol struct {
 	ROL    string `json:"rol"`
 	SCOALA string `json:"scoala"`
+	ID     int    `json:"id"`
 }
 
 func GetRoluri(context *gin.Context) {
@@ -31,7 +32,7 @@ func GetRoluri(context *gin.Context) {
 		context.IndentedJSON(http.StatusOK, false)
 		return
 	}
-	q := "select id_rol, s.nume nume from cont_rol c, scoala s where s.id = c.id_scoala and id_cont=?"
+	q := "select id_rol, s.nume nume, c.id_scoala scoala from cont_rol c, scoala s where s.id = c.id_scoala and id_cont=?"
 	rows, err1 := db.Query(q, content.ID)
 	if err1 != nil {
 		fmt.Println("Eroare: ", err1)
@@ -40,7 +41,7 @@ func GetRoluri(context *gin.Context) {
 	}
 	for rows.Next() {
 		var aux rol
-		if err := rows.Scan(&aux.ROL, &aux.SCOALA); err != nil {
+		if err := rows.Scan(&aux.ROL, &aux.SCOALA, &aux.ID); err != nil {
 			fmt.Println("Eroare: ", err)
 		} else {
 			roluri = append(roluri, aux)
