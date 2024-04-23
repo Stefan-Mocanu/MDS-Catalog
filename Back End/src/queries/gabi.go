@@ -12,6 +12,6 @@ func Route_gabi(router gin.IRouter) {
 	router.POST("/inserareScoala", gabi.Inregistrare_Instit_Invat)
 	router.POST("/inserareClasa", gabi.Info_clase)
 	router.POST("/inserareProfesor", gabi.Info_profesor)
-	router.POST("inserareElev", gabi.Info_elev)
+	router.POST("/inserareElev", gabi.Info_elev)
 
 }
