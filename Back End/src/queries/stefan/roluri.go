@@ -13,7 +13,7 @@ import (
 // Exemplu de functie HTTP
 // FUNCTIILE INCEP CU LITERA MARE
 
-type rol struct {
+type Rol struct {
 	ROL    string `json:"rol"`
 	SCOALA string `json:"scoala"`
 	ID     int    `json:"id"`
@@ -21,7 +21,7 @@ type rol struct {
 
 func GetRoluri(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
-	var roluri []rol = []rol{}
+	var roluri []Rol = []Rol{}
 	cookie, err := context.Cookie("session_cookie")
 	if err != nil {
 		context.IndentedJSON(http.StatusOK, false)
@@ -40,7 +40,7 @@ func GetRoluri(context *gin.Context) {
 		return
 	}
 	for rows.Next() {
-		var aux rol
+		var aux Rol
 		if err := rows.Scan(&aux.ROL, &aux.SCOALA, &aux.ID); err != nil {
 			fmt.Println("Eroare: ", err)
 		} else {

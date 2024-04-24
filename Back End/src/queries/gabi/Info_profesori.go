@@ -2,6 +2,7 @@ package gabi
 
 import (
 	"backend/database"
+	"backend/queries/stefan"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
@@ -25,9 +26,23 @@ func GenerateToken() string {
 
 func Info_profesor(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
-
+	ver := stefan.IsSessionActiveIntern(context)
+	if ver < 0 {
+		fmt.Println("Userul nu este logat")
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este logat"})
+		return
+	}
 	// Extrage ID-ul școlii din parametrii cererii
 	idScoala := context.PostForm("id_scoala")
+	if (!stefan.VerificareRol(stefan.Rol{
+		ROL:    "Administrator",
+		SCOALA: idScoala,
+		ID:     ver,
+	})) {
+		fmt.Println("Userul nu este admin pentru aceasta scoala")
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este admin pentru aceasta scoala"})
+		return
+	}
 
 	// Extrage fișierul CSV din corpul cererii
 	file, _, err := context.Request.FormFile("csv_file")

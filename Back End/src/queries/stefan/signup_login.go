@@ -98,6 +98,18 @@ func IsSessionActive(context *gin.Context) {
 	}
 	context.IndentedJSON(http.StatusOK, content)
 }
+
+func IsSessionActiveIntern(context *gin.Context) int {
+	cookie, err := context.Cookie("session_cookie")
+	if err != nil {
+		return -1
+	}
+	content, ok := Sessions[cookie]
+	if !ok {
+		return -1
+	}
+	return content.ID
+}
 func Logout(context *gin.Context) {
 
 	cookie, err := context.Cookie("session_cookie")
