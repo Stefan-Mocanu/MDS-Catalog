@@ -3,22 +3,22 @@ import AddUser from "./AddUser";
 import { useState } from "react";
 import { Form, NavLink, Outlet } from "react-router-dom";
 
-export async function action({ request }) {
-  async function fun(request) {
-    setTimeout(async () => {
-      let formData = await request.formData();
-      console.log(formData.get("name"));
-    }, 2000);
-    return true;
-  }
-  return fun(request);
-}
+// export async function action({ request }) {
+//   async function fun(request) {
+//     setTimeout(async () => {
+//       let formData = await request.formData();
+//       console.log(formData.get("name"));
+//     }, 2000);
+//     return true;
+//   }
+//   return fun(request);
+// }
 
-function handleRadio(e, n, setOpt) {
-  // e.preventDefault();
-  setOpt(n);
-  // console.log("Hello from radio handler");
-}
+// function handleRadio(e, n, setOpt) {
+//   // e.preventDefault();
+//   setOpt(n);
+//   // console.log("Hello from radio handler");
+// }
 export default function AddRole() {
   const [opt, setOpt] = useState(0);
 

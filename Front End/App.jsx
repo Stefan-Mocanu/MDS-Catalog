@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import Login from "./Login.jsx";
 import { action as loginAction } from "./Login.jsx";
 import Register from "./Register.jsx";
 import { action as registerAction } from "./Register.jsx";
 import ErrorPage from "./ErrorPage.jsx";
 import Menu from "./Menu.jsx";
-import Layout from "./Layout.jsx";
+import Layout, { layoutLoader } from "./Layout.jsx";
 import Admin from "./Admin.jsx";
-import SchoolInfo from "./SchoolInfo.jsx";
 import { loader as adminLoader } from "./Admin.jsx";
-import { action as roleAction } from "./AddRole.jsx";
+import SchoolInfo from "./SchoolInfo.jsx";
+import AddAdmin from "./AddAdmin.jsx";
+import { action as addAdminAction } from "./AddAdmin.jsx";
+import AddUser from "./AddUser.jsx";
+import { action as addUserAction } from "./AddUser.jsx";
 import Student from "./Student.jsx";
 import { loader as studentLoader } from "./Student.jsx";
 import StudentAcademicSituation from "./StudentAcademicSituation.jsx";
@@ -32,32 +35,50 @@ import {
   useLocation,
   RouterProvider,
   Outlet,
+  redirect,
 } from "react-router-dom";
 
 import "./style//App.css";
-import AddAdmin from "./AddAdmin.jsx";
-import AddUser from "./AddUser.jsx";
+import Logout from "./Logout.jsx";
+import WrongCredentials from "./WrongCredentials.jsx";
+import AdminAddUsers from "./AdminAddUsers.jsx";
+import { action as AdminAddUsersAction } from "./AdminAddUsers.jsx";
 
 function App() {
   //request
   const [isSessionActive, setIsSessionActive] = useState(true);
-  const [userData, setUserData] = useState({ nume: "Default" });
-  const nume = "ceva";
-  console.log(userData);
-  /////??
-  // if (isSessionActive) {
-  //   //request
-  //   setUserData({ name: "Gica", varsta: 9, tip: "elev" });
-  //   return <Home userData={userData} />;
-  // }
-  /////??
-  // loaders?
-  // const location = useLocation();
+  let userData = null;
+  let roluri = null;
+
+  // useEffect(() => {
+  const url = "/api/sessionActive";
+  fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      if (data !== false) {
+        userData = { ...data };
+        if (userData) {
+          
+        }
+        console.log(userData);
+        setIsSessionActive(true);
+        console.log(isSessionActive);
+      } else {
+        userData = null;
+        setIsSessionActive(false);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+  // }, []);
+
+  console.log(roluri);
+  // const RoleContext = createContext(null);
 
   const router = createBrowserRouter([
     {
       path: "/login",
-      element: <Login />,
+      element: isSessionActive ? <Navigate to="/" /> : <Login />,
       errorElement: <ErrorPage />,
       action: loginAction,
     },
@@ -69,15 +90,17 @@ function App() {
     },
     {
       path: "/",
-      element: isSessionActive ? (
-        <Layout userData={userData} setUserData={setUserData} />
-      ) : (
-        <Navigate to="/login" />
-      ),
+      element: isSessionActive ? <Layout roluri={roluri}/> : <Navigate to="/login" />,
       errorElement: <ErrorPage />,
+      loader: layoutLoader,
       children: [
         {
-          element: <Menu userData={userData} setUserData={setUserData} />,
+          element: <Logout />,
+          path: "/logout",
+          errorElement: <ErrorPage />,
+        },
+        {
+          element: <Menu />,
           index: true,
         },
         {
@@ -87,9 +110,10 @@ function App() {
           loader: adminLoader,
           children: [
             {
-              element: <SchoolInfo />,
               index: true,
+              element: <AdminAddUsers />,
               errorElement: <ErrorPage />,
+              action: AdminAddUsersAction,
             },
           ],
         },
@@ -167,13 +191,13 @@ function App() {
               element: <AddAdmin />,
               path: "addadmin",
               errorElement: <ErrorPage />,
-              action: roleAction,
+              action: addAdminAction,
             },
             {
               element: <AddUser />,
               path: "adduser",
               errorElement: <ErrorPage />,
-              //action????
+              action: addUserAction,
             },
           ],
         },

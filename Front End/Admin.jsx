@@ -1,11 +1,15 @@
 import { Link, Outlet, useLoaderData } from "react-router-dom";
 
 export async function loader({ params }) {
-  let adminData = { firstName: "NoFirstName", lastName: "NoLast" };
-  if (params.idAdmin == 1) {
-    adminData["firstName"] = "Paul";
-    adminData["lastName"] = "Ciobanu";
-  }
+  var adminData = { firstName: "firstName" };
+  // const url = "/api/sessionActive";
+  // await fetch(url)
+  //   .then((response) => response.json())
+  //   .then((data) => {
+  //     adminData = data;
+  //   })
+  //   .catch((error) => console.error("Error:", error));
+  // if (adminData.id != params.idAdmin) throw new Error("Invalid parameter!");
   return adminData;
 }
 
