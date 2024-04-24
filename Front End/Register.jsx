@@ -4,7 +4,7 @@ import { Form } from "react-router-dom";
 export async function action({ request }) {
   const formData = await request.formData();
   // const obj = Object.fromEntries(formData);
-  const url = "http://localhost:9000/signin";
+  const url = "/api/signup";
   await fetch(url, {
     method: "POST",
     body: formData,
@@ -21,22 +21,22 @@ export default function Register() {
       <Form method="post">
         <label>
           Last Name
-          <input type="text" name="nume" />
+          <input type="text" name="nume" required/>
         </label>
         <br />
         <label>
           First Name
-          <input type="text" name="prenume" />
+          <input type="text" name="prenume" required/>
         </label>
         <br />
         <label>
           Email
-          <input type="email" name="email" />
+          <input type="email" name="email" required/>
         </label>
         <br />
         <label>
           Password
-          <input type="password" name="parola" />
+          <input type="password" name="parola" required/>
         </label><br />
         <button type="submit">Submit</button>
       </Form>
