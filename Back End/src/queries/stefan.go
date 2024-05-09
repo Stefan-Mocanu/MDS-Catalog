@@ -11,33 +11,47 @@ func Route_stefan(router gin.IRouter) {
 	//router.POST("/exemplu", stefan.GetEXEMPLU)
 
 	/*
-		Cerere pentru crearea unu cont de utilizator
+		Cerere pentru crearea unui cont de utilizator
+		Primeste parametrii din POST: nume, prenume, email, parola
 	*/
 	router.POST("/signup", stefan.Signup)
 	/*
 		Cerere pentru autentificarea pe platforma
+		Primeste parametrii din POST: eamil, parola
 	*/
 	router.POST("/login", stefan.Login)
 	/*
 		Cerere pentru terminarea unei sesiuni pe platforma
+		Nu necesita parametrii
 	*/
 	router.POST("/logout", stefan.Logout)
 	/*
 		Cerere pentru verficarea faptului ca o sesiune este activa
+		Nu necesita parametrii
 	*/
 	router.GET("/sessionActive", stefan.IsSessionActive)
 	/*
 		Cerere pentru obtinerea rolurilor unui utilizator
+		Nu necesita parametrii
 	*/
 	router.GET("/getRoluri", stefan.GetRoluri)
 	/*
 		Inserarea materiilor si a incadrarilor in baza de date
+		Primesc ca parametrii din POST: id_scoala, csv_file(fisier .CSV)
 	*/
 	router.POST("/insertMaterie", stefan.Info_Materii)
 	router.POST("/insertIncadrare", stefan.Info_incadrare)
 	/*
 		Obtinerea din baza de date a tokenurilor de linkuire cont-rol pentru profesor si elev/parinte
+		Primeste ca parametrii din GET: id_scoala
 	*/
 	router.GET("/csvProfesor", stefan.CreateCSVprofesor)
 	router.GET("/csvElev", stefan.CreateCSVelev)
+	/*
+		Utilizarea unui token pentru linkuirea unui cont cu un profesor/elev/parinte
+		Primeste ca parametrii din POST: id_scoala, token
+	*/
+	router.POST("/alaturareProf", stefan.AlaturareProf)
+	router.POST("/alaturareElev", stefan.AlaturareElev)
+	router.POST("/alaturareParinte", stefan.AlaturareParinte)
 }
