@@ -54,4 +54,19 @@ func Route_stefan(router gin.IRouter) {
 	router.POST("/alaturareProf", stefan.AlaturareProf)
 	router.POST("/alaturareElev", stefan.AlaturareElev)
 	router.POST("/alaturareParinte", stefan.AlaturareParinte)
+	/*
+		Obtinerea catalogului din postura de elev
+		Primeste ca parametrii din GET: id_scoala, id_clasa
+	*/
+	router.GET("/viewCatalogElev", stefan.View_note_elev)
+	/*
+		Obtinerea catalogului din postura de parinte
+		Primeste ca parametrii din GET: id_scoala, id_clasa, id_elev
+	*/
+	router.GET("/viewCatalogParinte", stefan.View_note_parinte)
+	/*
+		Obtinerea copiilor inregistrati la o scoala ai unui parinte
+		Primeste ca parametru din GET: id_scoala
+	*/
+	router.GET("/getElevi", stefan.GetElevi)
 }

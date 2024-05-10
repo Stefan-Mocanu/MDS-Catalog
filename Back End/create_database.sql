@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 23, 2024 at 03:49 PM
+-- Generation Time: May 10, 2024 at 04:15 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -37,6 +37,13 @@ CREATE TABLE `activitate` (
   `data` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+--
+-- Dumping data for table `activitate`
+--
+
+INSERT INTO `activitate` (`id_nota`, `id_scoala`, `nume_disciplina`, `id_clasa`, `id_elev`, `valoare`, `data`) VALUES
+(1, 1, 'Istorie', '9A', 0, 0, '2024-05-01');
+
 -- --------------------------------------------------------
 
 --
@@ -47,6 +54,13 @@ CREATE TABLE `clasa` (
   `id_scoala` int(11) NOT NULL,
   `nume` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `clasa`
+--
+
+INSERT INTO `clasa` (`id_scoala`, `nume`) VALUES
+(1, '9A');
 
 -- --------------------------------------------------------
 
@@ -86,7 +100,9 @@ CREATE TABLE `cont_rol` (
 --
 
 INSERT INTO `cont_rol` (`id_cont`, `id_rol`, `id_scoala`) VALUES
-(7, 'Administrator', 1);
+(7, 'Administrator', 1),
+(7, 'Elev', 1),
+(7, 'Parinte', 1);
 
 -- --------------------------------------------------------
 
@@ -98,6 +114,16 @@ CREATE TABLE `discipline` (
   `id_scoala` int(11) NOT NULL,
   `nume` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `discipline`
+--
+
+INSERT INTO `discipline` (`id_scoala`, `nume`) VALUES
+(1, 'Geografie'),
+(1, 'Istorie'),
+(1, 'Matematica'),
+(1, 'Romana');
 
 -- --------------------------------------------------------
 
@@ -119,6 +145,36 @@ CREATE TABLE `elev` (
   `id_cont_parinte` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+--
+-- Dumping data for table `elev`
+--
+
+INSERT INTO `elev` (`id_scoala`, `id_clasa`, `id_elev`, `nume`, `prenume`, `gen`, `etnie`, `token_elev`, `token_parinte`, `id_cont_elev`, `id_cont_parinte`) VALUES
+(1, '9A', 0, 'Mocanu', 'Stefan', 'M', 'Roman', NULL, NULL, 7, 7);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `feedback`
+--
+
+CREATE TABLE `feedback` (
+  `id_feedback` int(11) NOT NULL,
+  `id_scoala` int(11) DEFAULT NULL,
+  `nume_disciplina` varchar(100) DEFAULT NULL,
+  `id_clasa` varchar(50) DEFAULT NULL,
+  `id_elev` int(11) DEFAULT NULL,
+  `content` mediumtext DEFAULT NULL,
+  `data` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `feedback`
+--
+
+INSERT INTO `feedback` (`id_feedback`, `id_scoala`, `nume_disciplina`, `id_clasa`, `id_elev`, `content`, `data`) VALUES
+(1, 1, 'Istorie', '9A', 0, 'A venit nepregatit la ora.', '2024-05-03');
+
 -- --------------------------------------------------------
 
 --
@@ -131,6 +187,13 @@ CREATE TABLE `incadrare` (
   `id_profesor` int(11) NOT NULL,
   `nume_disciplina` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `incadrare`
+--
+
+INSERT INTO `incadrare` (`id_scoala`, `id_clasa`, `id_profesor`, `nume_disciplina`) VALUES
+(1, '9A', 3, 'Istorie');
 
 -- --------------------------------------------------------
 
@@ -148,6 +211,13 @@ CREATE TABLE `note` (
   `data` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+--
+-- Dumping data for table `note`
+--
+
+INSERT INTO `note` (`id_nota`, `id_scoala`, `nume_disciplina`, `id_clasa`, `id_elev`, `nota`, `data`) VALUES
+(2, 1, 'Istorie', '9A', 0, 10, '2024-05-09');
+
 -- --------------------------------------------------------
 
 --
@@ -162,6 +232,15 @@ CREATE TABLE `profesor` (
   `token` varchar(10) DEFAULT NULL,
   `id_cont` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `profesor`
+--
+
+INSERT INTO `profesor` (`id_scoala`, `id`, `nume`, `prenume`, `token`, `id_cont`) VALUES
+(1, 1, 'Mocanu', 'Stefan', 'CkxZ5EDeZp', 7),
+(1, 2, 'Tilica', 'Gabi', 'IpG7mMyUNL', NULL),
+(1, 3, 'Ciobanu', 'Paul', 'DlEjFMMilP', NULL);
 
 -- --------------------------------------------------------
 
@@ -249,6 +328,14 @@ ALTER TABLE `elev`
   ADD KEY `id_cont_parinte` (`id_cont_parinte`);
 
 --
+-- Indexes for table `feedback`
+--
+ALTER TABLE `feedback`
+  ADD PRIMARY KEY (`id_feedback`),
+  ADD KEY `id_scoala` (`id_scoala`,`id_clasa`,`id_elev`),
+  ADD KEY `id_scoala_2` (`id_scoala`,`id_clasa`,`nume_disciplina`);
+
+--
 -- Indexes for table `incadrare`
 --
 ALTER TABLE `incadrare`
@@ -291,7 +378,7 @@ ALTER TABLE `scoala`
 -- AUTO_INCREMENT for table `activitate`
 --
 ALTER TABLE `activitate`
-  MODIFY `id_nota` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_nota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `cont`
@@ -300,10 +387,16 @@ ALTER TABLE `cont`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `feedback`
+--
+ALTER TABLE `feedback`
+  MODIFY `id_feedback` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `note`
 --
 ALTER TABLE `note`
-  MODIFY `id_nota` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_nota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `scoala`

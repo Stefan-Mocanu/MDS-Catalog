@@ -11,7 +11,7 @@ import (
 func VerificareRol(deVerificat Rol) bool {
 	var db *sql.DB = database.InitDb()
 	var rez int
-	fmt.Println(deVerificat)
+	//fmt.Println(deVerificat)
 	q := "select count(*) from cont_rol where id_rol = ? and id_cont=? and id_scoala=?"
 	err1 := db.QueryRow(q, deVerificat.ROL, deVerificat.ID, deVerificat.SCOALA).Scan(&rez)
 	if err1 != nil {
