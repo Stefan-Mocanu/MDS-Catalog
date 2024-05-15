@@ -67,4 +67,9 @@ func Route_stefan(router gin.IRouter) {
 		Primeste ca parametru din GET: id_scoala
 	*/
 	router.GET("/getElevi", stefan.GetElevi)
+	/*
+		Adaugare admin pentru o scoala cu un cont de admin
+		Primeste ca parametrii in POST: id_scoala, id_cont
+	*/
+	router.POST("/adaugaAdmin", stefan.AdaugaAdmin)
 }
