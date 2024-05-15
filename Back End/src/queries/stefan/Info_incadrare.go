@@ -13,6 +13,7 @@ import (
 
 func Info_incadrare(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
+	//Verificare daca userul este logat
 	ver := IsSessionActiveIntern(context)
 	if ver < 0 {
 		fmt.Println("Userul nu este logat")
@@ -40,7 +41,7 @@ func Info_incadrare(context *gin.Context) {
 	}
 	defer file.Close()
 	prof := make(map[string]int)
-	q := `select nume ||" "||prenume, id from profesor where id_scoala = ?;`
+	q := `select concat(nume," ",prenume), id from profesor where id_scoala = ?;`
 	rows, err1 := db.Query(q, idScoala)
 	if err1 != nil {
 		fmt.Println("Eroare: ", err1)

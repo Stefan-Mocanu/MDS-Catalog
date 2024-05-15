@@ -10,9 +10,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// Exemplu de functie HTTP
-// FUNCTIILE INCEP CU LITERA MARE
 func AlaturareParinte(c *gin.Context) {
+	//Verificare daca userul este logat
 	ver := IsSessionActiveIntern(c)
 	if ver < 0 {
 		fmt.Println("Userul nu este logat")
@@ -21,13 +20,14 @@ func AlaturareParinte(c *gin.Context) {
 	}
 
 	var db *sql.DB = database.InitDb()
+	//Obtinere date din POST
 	token := c.PostForm("token")
-	idScoala := c.PostForm("id_scoala")
-	var id int
-	q := `SELECT id_elev
+	var idScoala int
+	//Obtinere id elev
+	q := `SELECT idScoala
 	FROM elev
-	WHERE id_scoala = ? and token_parinte = ?`
-	err := db.QueryRow(q, idScoala, token).Scan(&id)
+	WHERE token_parinte = ?`
+	err := db.QueryRow(q, idScoala, token).Scan(&idScoala)
 	switch {
 
 	case err == sql.ErrNoRows:
@@ -39,17 +39,17 @@ func AlaturareParinte(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"Eroare": err})
 		return
 	}
-
+	//Linkuire cont parinte al elevului cu tokenul introdus
 	q = `update elev
 		set id_cont_parinte = ?
-		where id_scoala = ?
-		and token = ?`
+		where token = ?`
 	_, err = db.Exec(q, ver, idScoala, token)
 	if err != nil {
 		fmt.Println("Eroare: ", err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"Eroare": err})
 		return
 	}
+	//Adaugare rol in tabelul de roluri
 	q = `insert ignore into cont_rol(id_cont,id_rol,id_scoala)
 		values(?,"Parinte",?)`
 	_, err = db.Exec(q, ver, idScoala)

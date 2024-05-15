@@ -14,16 +14,16 @@ import (
 
 func CreateCSVelev(c *gin.Context) {
 	var db *sql.DB = database.InitDb()
+	//Extragere date din GET
 	idScoala := c.Query("id_scoala")
-
+	//Verificare daca userul este logat
 	ver := IsSessionActiveIntern(c)
 	if ver < 0 {
 		fmt.Println("Userul nu este logat")
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este logat"})
 		return
 	}
-	// Extrage ID-ul școlii din parametrii cererii
-
+	//Verifiare daca userul este ADMIN
 	if (!VerificareRol(Rol{
 		ROL:    "Administrator",
 		SCOALA: idScoala,
@@ -33,9 +33,11 @@ func CreateCSVelev(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este admin pentru aceasta scoala"})
 		return
 	}
+
 	records := [][]string{}
 	headers := []string{"Clasa", "Nume", "Token Elev", "Token Parinte"}
 	records = append([][]string{headers}, records...)
+	//Obtinere tokenuri si informatii despre elevi
 	q := `select id_clasa, concat(nume," ",prenume), token_elev, token_parinte 
 			from elev 
 			where id_scoala = ? 
@@ -62,7 +64,7 @@ func CreateCSVelev(c *gin.Context) {
 	var buf bytes.Buffer
 	writer := csv.NewWriter(&buf)
 
-	// Write data rows to CSV buffer
+	// Scrierea datelor in bufferul CSV
 	for _, row := range records {
 		if err := writer.Write(row); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -17,7 +17,7 @@ func Route_stefan(router gin.IRouter) {
 	router.POST("/signup", stefan.Signup)
 	/*
 		Cerere pentru autentificarea pe platforma
-		Primeste parametrii din POST: eamil, parola
+		Primeste parametrii din POST: email, parola
 	*/
 	router.POST("/login", stefan.Login)
 	/*
@@ -49,11 +49,9 @@ func Route_stefan(router gin.IRouter) {
 	router.GET("/csvElev", stefan.CreateCSVelev)
 	/*
 		Utilizarea unui token pentru linkuirea unui cont cu un profesor/elev/parinte
-		Primeste ca parametrii din POST: id_scoala, token
+		Primeste ca parametrii din POST: rol("elev"/"profesor"/"parinte"), token
 	*/
-	router.POST("/alaturareProf", stefan.AlaturareProf)
-	router.POST("/alaturareElev", stefan.AlaturareElev)
-	router.POST("/alaturareParinte", stefan.AlaturareParinte)
+	router.POST("/alaturare", stefan.Alaturare)
 	/*
 		Obtinerea catalogului din postura de elev
 		Primeste ca parametrii din GET: id_scoala, id_clasa

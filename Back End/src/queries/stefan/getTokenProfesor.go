@@ -14,16 +14,16 @@ import (
 
 func CreateCSVprofesor(c *gin.Context) {
 	var db *sql.DB = database.InitDb()
+	// Extrage ID-ul școlii din parametrii cererii
 	idScoala := c.Query("id_scoala")
-
+	//Verificare daca userul este logat
 	ver := IsSessionActiveIntern(c)
 	if ver < 0 {
 		fmt.Println("Userul nu este logat")
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este logat"})
 		return
 	}
-	// Extrage ID-ul școlii din parametrii cererii
-
+	//Verificare daca userul este admin
 	if (!VerificareRol(Rol{
 		ROL:    "Administrator",
 		SCOALA: idScoala,
@@ -36,6 +36,7 @@ func CreateCSVprofesor(c *gin.Context) {
 	records := [][]string{}
 	headers := []string{"Nume", "Token"}
 	records = append([][]string{headers}, records...)
+	//Obtinere date token si date de identificare a profesorilor
 	q := `select concat(nume," ",prenume), token from profesor where id_scoala = ? order by nume, prenume`
 	rows, err1 := db.Query(q, idScoala)
 	if err1 != nil {
