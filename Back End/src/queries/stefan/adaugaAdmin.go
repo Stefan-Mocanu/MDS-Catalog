@@ -34,7 +34,7 @@ func AdaugaAdmin(c *gin.Context) {
 	}
 
 	q := `insert into cont_rol(id_cont,id_rol,id_scoala)
-		values(?,"Admin",?)`
+		values(?,"Administrator",?)`
 	_, err := db.Exec(q, idCont, idScoala)
 	if err != nil {
 		fmt.Println("Eroare: ", err)
