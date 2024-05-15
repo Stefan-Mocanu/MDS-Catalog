@@ -22,14 +22,14 @@ func AdaugaAdmin(c *gin.Context) {
 	//Obtinere date din POST
 	idScoala := c.PostForm("id_scoala")
 	idCont := c.PostForm("id_cont")
-	//Verificare daca useul este PARINTE
+	//Verificare daca useul este ADMIN
 	if (!VerificareRol(Rol{
-		ROL:    "Parinte",
+		ROL:    "Administrator",
 		SCOALA: idScoala,
 		ID:     ver,
 	})) {
-		fmt.Println("Userul nu este parinte in aceasta scoala")
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este parinte in aceasta scoala"})
+		fmt.Println("Userul nu este admin in aceasta scoala")
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este admin in aceasta scoala"})
 		return
 	}
 
