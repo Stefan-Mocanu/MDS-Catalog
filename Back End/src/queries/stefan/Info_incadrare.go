@@ -57,7 +57,6 @@ func Info_incadrare(context *gin.Context) {
 			prof[aux1] = aux2
 		}
 	}
-	fmt.Println(prof)
 
 	// Deschide fișierul CSV pentru citire
 	csvData, err := csv.NewReader(file).ReadAll()

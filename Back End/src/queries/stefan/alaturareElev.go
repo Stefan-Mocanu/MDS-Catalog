@@ -43,7 +43,7 @@ func AlaturareElev(c *gin.Context) {
 	q = `update elev
 		set id_cont_elev = ?
 		where token = ?`
-	_, err = db.Exec(q, ver, idScoala, token)
+	_, err = db.Exec(q, ver, token)
 	if err != nil {
 		fmt.Println("Eroare: ", err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"Eroare": err})

@@ -27,7 +27,7 @@ func AlaturareParinte(c *gin.Context) {
 	q := `SELECT id_scoala
 	FROM elev
 	WHERE token_parinte = ?`
-	err := db.QueryRow(q, idScoala, token).Scan(&idScoala)
+	err := db.QueryRow(q, token).Scan(&idScoala)
 	switch {
 
 	case err == sql.ErrNoRows:
@@ -43,7 +43,7 @@ func AlaturareParinte(c *gin.Context) {
 	q = `update elev
 		set id_cont_parinte = ?
 		where token = ?`
-	_, err = db.Exec(q, ver, idScoala, token)
+	_, err = db.Exec(q, ver, token)
 	if err != nil {
 		fmt.Println("Eroare: ", err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"Eroare": err})
