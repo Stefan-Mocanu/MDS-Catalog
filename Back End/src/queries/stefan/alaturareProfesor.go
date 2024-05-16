@@ -24,7 +24,7 @@ func AlaturareProf(c *gin.Context) {
 	token := c.PostForm("token")
 	var idScoala int
 	//Obtinere id profesor
-	q := `SELECT idScoala
+	q := `SELECT id_scoala
 	FROM profesor 
 	WHERE token = ?`
 	err := db.QueryRow(q, token).Scan(&idScoala)

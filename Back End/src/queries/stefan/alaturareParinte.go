@@ -24,7 +24,7 @@ func AlaturareParinte(c *gin.Context) {
 	token := c.PostForm("token")
 	var idScoala int
 	//Obtinere id elev
-	q := `SELECT idScoala
+	q := `SELECT id_scoala
 	FROM elev
 	WHERE token_parinte = ?`
 	err := db.QueryRow(q, idScoala, token).Scan(&idScoala)
