@@ -57,6 +57,7 @@ func Info_incadrare(context *gin.Context) {
 			prof[aux1] = aux2
 		}
 	}
+	fmt.Println(prof)
 
 	// Deschide fișierul CSV pentru citire
 	csvData, err := csv.NewReader(file).ReadAll()
@@ -73,11 +74,11 @@ func Info_incadrare(context *gin.Context) {
 		materie := line[2]
 
 		// Inserează incadrarea în baza de date
-		insertStatement := "INSERT INTO incadreare (id_scoala, id_clasa, id_profesor,nume_disciplina) VALUES (?, ?, ?, ?)"
+		insertStatement := "INSERT INTO incadrare (id_scoala, id_clasa, id_profesor,nume_disciplina) VALUES (?, ?, ?, ?)"
 		_, err = db.Exec(insertStatement, idScoala, clasa, prof[nume], materie)
 		if err != nil {
-			fmt.Println("Eroare la inserarea profesorului în baza de date:", err)
-			context.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la inserarea profesorului în baza de date"})
+			fmt.Println("Eroare la inserarea incadrarii în baza de date:", err)
+			context.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la inserarea incadrarii în baza de date"})
 			return
 		}
 	}

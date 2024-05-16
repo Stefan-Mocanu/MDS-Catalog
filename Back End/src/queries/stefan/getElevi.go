@@ -65,7 +65,6 @@ func GetElevi(c *gin.Context) {
 			})
 		}
 	}
-	fmt.Println(elevi)
 	c.IndentedJSON(http.StatusOK, elevi)
 
 	database.CloseDB(db)
