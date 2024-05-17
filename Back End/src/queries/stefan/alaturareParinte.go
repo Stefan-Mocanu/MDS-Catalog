@@ -42,7 +42,7 @@ func AlaturareParinte(c *gin.Context) {
 	//Linkuire cont parinte al elevului cu tokenul introdus
 	q = `update elev
 		set id_cont_parinte = ?
-		where token = ?`
+		where token_parinte = ?`
 	_, err = db.Exec(q, ver, token)
 	if err != nil {
 		fmt.Println("Eroare: ", err)

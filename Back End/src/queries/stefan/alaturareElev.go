@@ -42,7 +42,7 @@ func AlaturareElev(c *gin.Context) {
 	//Linkuire cont elev
 	q = `update elev
 		set id_cont_elev = ?
-		where token = ?`
+		where token_elev = ?`
 	_, err = db.Exec(q, ver, token)
 	if err != nil {
 		fmt.Println("Eroare: ", err)
