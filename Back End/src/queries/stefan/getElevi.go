@@ -28,7 +28,7 @@ func GetElevi(c *gin.Context) {
 	}
 	//Obtinere date din GET
 	idScoala := c.Query("id_scoala")
-	//Verificare daca useul este PARINTE
+	//Verificare daca userul este PARINTE
 	if (!VerificareRol(Rol{
 		ROL:    "Parinte",
 		SCOALA: idScoala,
