@@ -50,7 +50,7 @@ func AlaturareElev(c *gin.Context) {
 		return
 	}
 	//Linkuire cont elev in tabelul de roluri
-	q = `insert into cont_rol(id_cont,id_rol,id_scoala)
+	q = `insert ignore into cont_rol(id_cont,id_rol,id_scoala)
 		values(?,"Elev",?)`
 	_, err = db.Exec(q, ver, idScoala)
 	if err != nil {
