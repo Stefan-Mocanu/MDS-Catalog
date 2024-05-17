@@ -50,7 +50,7 @@ func CreateCSVelev(c *gin.Context) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var record = []string{"", ""}
+		var record = []string{"", "", "", ""}
 		if err := rows.Scan(&record[0], &record[1], &record[2], &record[3]); err != nil {
 			fmt.Println("Eroare: ", err)
 		} else {
