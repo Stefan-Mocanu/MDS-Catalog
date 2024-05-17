@@ -72,4 +72,9 @@ func Route_stefan(router gin.IRouter) {
 		Primeste ca parametrii in POST: id_scoala, id_cont
 	*/
 	router.POST("/adaugaAdmin", stefan.AdaugaAdmin)
+	/*
+		Obtinerea claselor la care este inregistrat un elev intr-o scoala
+		Primeste ca parametrii din GET: id_scoala
+	*/
+	router.GET("/getClase", stefan.GetClasa)
 }
