@@ -29,4 +29,6 @@ func Route_gabi(router gin.IRouter) {
 		Primesc ca parametrii din POST: id_scoala, nume, prenume, clasa, email
 	*/
 	router.POST("/inserareElev", gabi.Info_elev)
+
+	router.POST("/feedback", gabi.Feedback)
 }
