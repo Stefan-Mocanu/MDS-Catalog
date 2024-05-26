@@ -7,13 +7,8 @@ import (
 )
 
 func Route_stefan(router gin.IRouter) {
-	//router.GET("/stefan", stefan.STEVE)
-	//router.POST("/exemplu", stefan.GetEXEMPLU)
-
-	/*
-		Cerere pentru crearea unui cont de utilizator
-		Primeste parametrii din POST: nume, prenume, email, parola
-	*/
+	router.GET("/stefan", stefan.STEVE)
+	router.GET("/exemplu", stefan.GetEXEMPLU)
 	router.POST("/signup", stefan.Signup)
 	/*
 		Cerere pentru autentificarea pe platforma
