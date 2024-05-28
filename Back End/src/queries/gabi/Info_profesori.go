@@ -9,23 +9,44 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func GenerateToken() string {
+func GenerateUniqueToken(db *sql.DB) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	var token strings.Builder
 
-	for i := 0; i < 10; i++ {
-		token.WriteByte(charset[rand.Intn(len(charset))])
+	for {
+		for i := 0; i < 10; i++ {
+			token.WriteByte(charset[r.Intn(len(charset))])
+		}
+		newToken := token.String()
+
+		// Verifică unicitatea tokenului în baza de date
+		var count int
+		query := "SELECT COUNT(*) FROM (SELECT token_elev AS token FROM elev UNION SELECT token_parinte AS token FROM elev UNION SELECT token FROM profesor) AS all_tokens WHERE token = ?"
+		err := db.QueryRow(query, newToken).Scan(&count)
+		if err != nil {
+			fmt.Println("Eroare la verificarea unicității tokenului:", err)
+			continue
+		}
+
+		if count == 0 {
+			return newToken
+		}
+
+		token.Reset()
 	}
-	return token.String()
 }
 
 func Info_profesor(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
+	defer database.CloseDB(db)
+
 	ver := stefan.IsSessionActiveIntern(context)
 	if ver < 0 {
 		fmt.Println("Userul nu este logat")
@@ -34,11 +55,11 @@ func Info_profesor(context *gin.Context) {
 	}
 	// Extrage ID-ul școlii din parametrii cererii
 	idScoala := context.PostForm("id_scoala")
-	if (!stefan.VerificareRol(stefan.Rol{
+	if !stefan.VerificareRol(stefan.Rol{
 		ROL:    "Administrator",
 		SCOALA: idScoala,
 		ID:     ver,
-	})) {
+	}) {
 		fmt.Println("Userul nu este admin pentru aceasta scoala")
 		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este admin pentru aceasta scoala"})
 		return
@@ -68,7 +89,7 @@ func Info_profesor(context *gin.Context) {
 		prenume := line[1] // Presupunând că prenumele se află pe a doua poziție în fiecare linie
 
 		// Generează un token aleatoriu de lungime 10
-		token := GenerateToken()
+		token := GenerateUniqueToken(db)
 
 		// Generează un ID unic pentru profesor folosind NVL(max(ID), 0) + 1
 		var idProfesor int
@@ -92,6 +113,4 @@ func Info_profesor(context *gin.Context) {
 
 	// Returnează un răspuns de succes
 	context.IndentedJSON(http.StatusOK, gin.H{"success": true})
-	database.CloseDB(db)
-
 }

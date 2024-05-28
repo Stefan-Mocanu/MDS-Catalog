@@ -6,14 +6,46 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
+func GenerateUniqueToken1(db *sql.DB) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	var token strings.Builder
+
+	for {
+		for i := 0; i < 10; i++ {
+			token.WriteByte(charset[r.Intn(len(charset))])
+		}
+		newToken := token.String()
+
+		// Verifică unicitatea tokenului în baza de date
+		var count int
+		query := "SELECT COUNT(*) FROM (SELECT token_elev AS token FROM elev UNION SELECT token_parinte AS token FROM elev UNION SELECT token FROM profesor) AS all_tokens WHERE token = ?"
+		err := db.QueryRow(query, newToken).Scan(&count)
+		if err != nil {
+			fmt.Println("Eroare la verificarea unicității tokenului:", err)
+			continue
+		}
+
+		if count == 0 {
+			return newToken
+		}
+
+		token.Reset()
+	}
+}
+
 func Info_elev(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
+	defer database.CloseDB(db)
 
 	ver := stefan.IsSessionActiveIntern(context)
 	if ver < 0 {
@@ -23,11 +55,11 @@ func Info_elev(context *gin.Context) {
 	}
 	// Extrage ID-ul școlii din parametrii cererii
 	idScoala := context.PostForm("id_scoala")
-	if (!stefan.VerificareRol(stefan.Rol{
+	if !stefan.VerificareRol(stefan.Rol{
 		ROL:    "Administrator",
 		SCOALA: idScoala,
 		ID:     ver,
-	})) {
+	}) {
 		fmt.Println("Userul nu este admin pentru aceasta scoala")
 		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este admin pentru aceasta scoala"})
 		return
@@ -59,8 +91,8 @@ func Info_elev(context *gin.Context) {
 		etnie := line[4]
 
 		// Generează un token aleatoriu pentru elev și părinte
-		tokenElev := GenerateToken()
-		tokenParinte := GenerateToken()
+		tokenElev := GenerateUniqueToken1(db)
+		tokenParinte := GenerateUniqueToken1(db)
 
 		// Generează un ID unic pentru elev folosind NVL(max(ID), 0) + 1
 		var idElev int
@@ -84,7 +116,4 @@ func Info_elev(context *gin.Context) {
 
 	// Returnează un răspuns de succes
 	context.IndentedJSON(http.StatusOK, gin.H{"success": true})
-
-	database.CloseDB(db)
-
 }
