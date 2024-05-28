@@ -12,9 +12,9 @@ import (
 )
 
 type DataEtnie struct {
-	X     string  `json:"x"`
-	MEDIE float64 `json:"medie"`
-	TIP   string  `json:"type"`
+	X    []float64 `json:"x"`
+	NAME string    `json:"name"`
+	TIP  string    `json:"type"`
 }
 
 func GetDistEtnii(c *gin.Context) {
@@ -36,7 +36,7 @@ func GetDistEtnii(c *gin.Context) {
 		return
 	}
 
-	etnii := map[string][]int{}
+	etnii := map[string][]float64{}
 
 	q := `SELECT DISTINCT etnie FROM elev WHERE id_scoala = ?`
 	rows, err := db.Query(q, idScoala)
@@ -51,7 +51,7 @@ func GetDistEtnii(c *gin.Context) {
 		if err := rows.Scan(&etnie); err != nil {
 			fmt.Println("Eroare: ", err)
 		} else {
-			etnii[etnie] = []int{}
+			etnii[etnie] = []float64{}
 		}
 	}
 
@@ -71,28 +71,24 @@ func GetDistEtnii(c *gin.Context) {
 		}
 		defer rows.Close()
 
-		var sumaMedii float64
-		var count int
 		for rows.Next() {
 			var mediaGenerala float64
 			if err := rows.Scan(&mediaGenerala); err != nil {
 				fmt.Println("Eroare: ", err)
 			} else {
-				sumaMedii += mediaGenerala
-				count++
+				etnii[etnie] = append(etnii[etnie], mediaGenerala)
 			}
 		}
-		if count > 0 {
-			mediaFinala := sumaMedii / float64(count)
+		if len(etnii[etnie]) > 0 {
 			date = append(date, DataEtnie{
-				X:     etnie,
-				MEDIE: mediaFinala,
-				TIP:   "bar",
+				X:    etnii[etnie],
+				NAME: etnie,
+				TIP:  "box",
 			})
 		}
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{"data": date, "layout": map[string]interface{}{
-		"barmode": "stack",
+		"Title": "Repartitia mediilor pe etnii",
 	}})
 }

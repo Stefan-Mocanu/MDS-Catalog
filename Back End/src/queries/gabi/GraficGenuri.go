@@ -12,9 +12,9 @@ import (
 )
 
 type DataGen struct {
-	X     string  `json:"x"`
-	MEDIE float64 `json:"medie"`
-	TIP   string  `json:"type"`
+	X    []float64 `json:"x"`
+	NAME string    `json:"name"`
+	TIP  string    `json:"type"`
 }
 
 func GetDistGenuri(c *gin.Context) {
@@ -36,7 +36,7 @@ func GetDistGenuri(c *gin.Context) {
 		return
 	}
 
-	genuri := map[string][]int{}
+	genuri := map[string][]float64{}
 
 	q := `SELECT DISTINCT gen FROM elev WHERE id_scoala = ?`
 	rows, err := db.Query(q, idScoala)
@@ -51,7 +51,7 @@ func GetDistGenuri(c *gin.Context) {
 		if err := rows.Scan(&gen); err != nil {
 			fmt.Println("Eroare: ", err)
 		} else {
-			genuri[gen] = []int{}
+			genuri[gen] = []float64{}
 		}
 	}
 
@@ -71,28 +71,24 @@ func GetDistGenuri(c *gin.Context) {
 		}
 		defer rows.Close()
 
-		var sumaMedii float64
-		var count int
 		for rows.Next() {
 			var mediaGenerala float64
 			if err := rows.Scan(&mediaGenerala); err != nil {
 				fmt.Println("Eroare: ", err)
 			} else {
-				sumaMedii += mediaGenerala
-				count++
+				genuri[gen] = append(genuri[gen], mediaGenerala)
 			}
 		}
-		if count > 0 {
-			mediaFinala := sumaMedii / float64(count)
+		if len(genuri[gen]) > 0 {
 			date = append(date, DataGen{
-				X:     gen,
-				MEDIE: mediaFinala,
-				TIP:   "bar",
+				X:    genuri[gen],
+				NAME: gen,
+				TIP:  "box",
 			})
 		}
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{"data": date, "layout": map[string]interface{}{
-		"barmode": "stack",
+		"Title": "Repartitia mediilor pe genuri",
 	}})
 }
