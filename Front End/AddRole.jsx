@@ -33,7 +33,7 @@ export default function AddRole() {
         <p>Choose the type of user:</p>
         <NavLink
           to="/addrole/adduser"
-          className={({ isActive, isPending }) =>
+          className={({ isActive}) =>
             isActive ? "selectedbutton" : ""
           }
         >
@@ -42,7 +42,7 @@ export default function AddRole() {
         <br></br>
         <NavLink
           to="/addrole/addadmin"
-          className={({ isActive, isPending }) =>
+          className={({ isActive}) =>
             isActive ? "selectedbutton" : ""
           }
         >

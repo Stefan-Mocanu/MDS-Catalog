@@ -1,16 +1,42 @@
-import { Outlet, useLoaderData } from "react-router-dom";
-export async function loader({ params }) {
-  const profData = { firstName: "NoFirstName", lastName: "NoLastName" };
-  if (params["idProfessor"] == 1) {
-    profData["firstName"] = "Paul";
-    profData["lastName"] = "Ciobanu";
+import { Outlet, useLoaderData, useOutletContext } from "react-router-dom";
+import { layoutLoader } from "./Layout";
+
+function getRol(roluri, roleNumber) {
+  const rol = roluri[roleNumber - 1];
+  if (rol["rol"] !== "Profesor") {
+    throw new Response("Not Found", { status: 404 });
   }
-  return profData;
+  return rol;
+}
+
+async function getClasses(role) {
+  const url = "/api/claseProfesor";
+  let formData = new FormData();
+  let classes;
+  formData.append("id_scoala", role["id"]);
+  await fetch(url, {
+    method: "POST",
+    body: formData,
+
+  })
+    .then((response) => response.json())
+    .then((data) => (classes = data))
+    .catch((error) => console.log(error));
+  return classes;
+}
+
+export async function professorLoader({ params }) {
+  const roluri = await layoutLoader();
+  const role = getRol(roluri, params.roleNumber);
+  const classes = await getClasses(role);
+  const data = { role: role, classes: classes };
+  return data;
 }
 
 export default function Professor() {
-  const profData = useLoaderData();
-
+  const data = useLoaderData();
+  console.log(data);
+  //de facut getRole sau de verificat rolul in loader
   return (
     <>
       <div id="useroptions">
@@ -20,10 +46,8 @@ export default function Professor() {
         <button>Chat</button>
       </div>
       <div id="content">
-        <h2>
-          Professor {profData["firstName"]} {profData["lastName"]}
-        </h2>
-        <Outlet />
+        <h2></h2>
+        {/* <Outlet /> */}
       </div>
     </>
   );

@@ -4,22 +4,23 @@ import { action as loginAction } from "./Login.jsx";
 import Register from "./Register.jsx";
 import { action as registerAction } from "./Register.jsx";
 import ErrorPage from "./ErrorPage.jsx";
-import Menu from "./Menu.jsx";
+import Profile from "./Profile.jsx";
+import { loader as profileLoader } from "./Profile.jsx";
 import Layout, { layoutLoader } from "./Layout.jsx";
 import Admin from "./Admin.jsx";
-import { loader as adminLoader } from "./Admin.jsx";
-import SchoolInfo from "./SchoolInfo.jsx";
+import SchoolStatistics from "./SchoolStatistics.jsx";
+import { loader as schoolStatisticsLoader } from "./SchoolStatistics.jsx";
 import AddAdmin from "./AddAdmin.jsx";
 import { action as addAdminAction } from "./AddAdmin.jsx";
 import AddUser from "./AddUser.jsx";
 import { action as addUserAction } from "./AddUser.jsx";
 import Student from "./Student.jsx";
 import { loader as studentLoader } from "./Student.jsx";
-import StudentAcademicSituation from "./StudentAcademicSituation.jsx";
+import ParentAcademicSituation from "./ParentAcademicSituation.jsx";
 import Parent from "./Parent.jsx";
-import { loader as parentLoader } from "./Parent.jsx";
+// import { loader as parentLoader } from "./Parent.jsx";
 import Professor from "./Professor.jsx";
-import { loader as professorLoader } from "./Professor.jsx";
+import { professorLoader } from "./Professor.jsx";
 import SelectClass from "./SelectClass.jsx";
 import { loader as selectClassLoader } from "./SelectClass.jsx";
 import ClassStatistics from "./ClassStatistics.jsx";
@@ -40,10 +41,12 @@ import {
 
 import "./style//App.css";
 import Logout from "./Logout.jsx";
-import WrongCredentials from "./WrongCredentials.jsx";
 import AdminAddUsers from "./AdminAddUsers.jsx";
 import { action as AdminAddUsersAction } from "./AdminAddUsers.jsx";
-
+import GetTokens from "./GetTokens.jsx";
+import AddAnotherAdmin from "./AddAnotherAdmin.jsx";
+import { action as AddAnotherAdminAction } from "./AddAnotherAdmin.jsx";
+import StudentAcademicSituation from "./StudentAcademicSituation.jsx";
 function App() {
   //request
   const [isSessionActive, setIsSessionActive] = useState(true);
@@ -58,12 +61,12 @@ function App() {
       console.log(data);
       if (data !== false) {
         userData = { ...data };
-        if (userData) {
-          
-        }
-        console.log(userData);
+        // if (userData) {
+
+        // }
+        // console.log(userData);
         setIsSessionActive(true);
-        console.log(isSessionActive);
+        // console.log(isSessionActive);
       } else {
         userData = null;
         setIsSessionActive(false);
@@ -72,7 +75,7 @@ function App() {
     .catch((error) => console.error("Error:", error));
   // }, []);
 
-  console.log(roluri);
+  // console.log(roluri);
   // const RoleContext = createContext(null);
 
   const router = createBrowserRouter([
@@ -90,7 +93,11 @@ function App() {
     },
     {
       path: "/",
-      element: isSessionActive ? <Layout roluri={roluri}/> : <Navigate to="/login" />,
+      element: isSessionActive ? (
+        <Layout roluri={roluri} />
+      ) : (
+        <Navigate to="/login" />
+      ),
       errorElement: <ErrorPage />,
       loader: layoutLoader,
       children: [
@@ -100,28 +107,48 @@ function App() {
           errorElement: <ErrorPage />,
         },
         {
-          element: <Menu />,
+          element: <Profile />,
           index: true,
+          loader: profileLoader,
         },
         {
-          path: "admin/:idAdmin",
+          path: "admin/:roleNumber",
           element: <Admin />,
           errorElement: <ErrorPage />,
-          loader: adminLoader,
+          // loader: adminLoader,
           children: [
             {
               index: true,
               element: <AdminAddUsers />,
               errorElement: <ErrorPage />,
               action: AdminAddUsersAction,
+              // loader: adminLoader,
+            },
+            {
+              path: "gettokens",
+              element: <GetTokens />,
+              errorElement: <ErrorPage />,
+              // loader: adminLoader,
+            },
+            {
+              path: "addanotheradmin",
+              element: <AddAnotherAdmin />,
+              errorElement: <ErrorPage />,
+              action: AddAnotherAdminAction,
+            },
+            {
+              path: "schoolstatistics",
+              element: <SchoolStatistics />,
+              errorElement: <ErrorPage />,
+              loader: schoolStatisticsLoader
             },
           ],
         },
         {
-          path: "student/:idStudent",
+          path: "student/:roleNumber",
           element: <Student />,
           errorElement: <ErrorPage />,
-          loader: studentLoader,
+          // loader: studentLoader,
           children: [
             {
               element: <StudentAcademicSituation />,
@@ -131,20 +158,20 @@ function App() {
           ],
         },
         {
-          path: "parent/:idParent",
+          path: "parent/:roleNumber",
           element: <Parent />,
           errorElement: <ErrorPage />,
-          loader: parentLoader,
+          // loader: parentLoader,
           children: [
             {
-              element: <StudentAcademicSituation />,
+              element: <ParentAcademicSituation />,
               index: true,
               errorElement: <ErrorPage />,
             },
           ],
         },
         {
-          path: "professor/:idProfessor",
+          path: "professor/:roleNumber",
           element: <Professor />,
           errorElement: <ErrorPage />,
           loader: professorLoader,
@@ -155,12 +182,6 @@ function App() {
               index: true,
               errorElement: <ErrorPage />,
               loader: selectClassLoader,
-            },
-            {
-              path: "classstatistics/:idClass",
-              element: <ClassStatistics />,
-              errorElement: <ErrorPage />,
-              loader: classStatisticsLoader,
             },
             {
               path: "classinfo/:idClass",

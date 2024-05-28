@@ -41,6 +41,13 @@
   /* height: 90%; */
 }
 
-#rolecontent .selectedbutton button {
+#layout .selectedbutton button {
   background-color: rgb(247, 242, 234);
+}
+#layout a button {
+  height: 100%;
+}
+
+table {
+  width: 100%;
 }
