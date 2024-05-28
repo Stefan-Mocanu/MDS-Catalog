@@ -13,7 +13,7 @@ import (
 type Data struct {
 	X    []string `json:"x"`
 	Y    []int    `json:"y"`
-	NUME string   `json:"nume"`
+	NUME string   `json:"name"`
 	TIP  string   `json:"type"`
 }
 
