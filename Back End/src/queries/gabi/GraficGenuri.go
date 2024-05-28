@@ -58,12 +58,13 @@ func GetDistGenuri(c *gin.Context) {
 	var date []DataGen
 	for gen := range genuri {
 		q := `
-		SELECT n.nota as media_generala
+		SELECT avg(n.nota) as media_generala
 		FROM elev e
 		JOIN note n
 		where e.id_elev = n.id_elev
 		and e.id_clasa = n.id_clasa
 		and e.id_scoala = ? AND e.gen = ?
+		group by e.id_clasa, e.id_elev
 		`
 		rows, err := db.Query(q, idScoala, gen)
 		if err != nil {
