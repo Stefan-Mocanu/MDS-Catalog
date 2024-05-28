@@ -74,4 +74,6 @@ func Route_stefan(router gin.IRouter) {
 	router.GET("/getClase", stefan.GetClasa)
 
 	router.GET("/getDistEtnii", stefan.GetDistEtnii)
+
+	router.GET("/getDevStdNote", stefan.GetDevStdNote)
 }
