@@ -72,8 +72,14 @@ func Route_stefan(router gin.IRouter) {
 		Primeste ca parametrii din GET: id_scoala
 	*/
 	router.GET("/getClase", stefan.GetClasa)
-
+	/*
+		Obtinerea parametrilor de realizare a unui grafic barplot cu repartitia de etnii din fiecare clasa
+		Primeste ca parametru din GET: id_scoala
+	*/
 	router.GET("/getDistEtnii", stefan.GetDistEtnii)
-
+	/*
+		Obtinerea parametrilor de realizare a unui grafic barplot cu deviatia standard a mediilor elevilor
+		Primeste ca parametru din GET: id_scoala
+	*/
 	router.GET("/getDevStdNote", stefan.GetDevStdNote)
 }
