@@ -55,4 +55,6 @@ func Route_gabi(router gin.IRouter) {
 	// Obținerea informațiilor despre elevii unui profesor de la o școală
 	// Primesc ca parametrii din POST: id_profesor, id_scoala
 	router.POST("/eleviProfesor", gabi.EleviProfesor)
+
+	router.GET("/getRepMedii", gabi.GetBoxPlotMedii)
 }
