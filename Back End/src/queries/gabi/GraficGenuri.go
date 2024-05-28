@@ -55,12 +55,19 @@ func GetDistGenuri(c *gin.Context) {
 		}
 	}
 
+	date := []DataEtnie{}
 	for gen := range genuri {
 		q := `
-		SELECT e.id_elev, n.materie, n.nota
-		FROM elev e
-		JOIN note n ON e.id_elev = n.id_elev
-		WHERE e.id_scoala = ? AND e.gen = ?
+		select round(avg(a.mean),2) mean
+		from (SELECT n.id_clasa,n.id_elev,avg(n.nota) mean
+				from note n, elev e
+				where e.id_scoala = ?
+			and e.id_scoala = n.id_scoala
+			and e.id_clasa = n.id_clasa
+			and e.id_elev = n.id_elev
+			and e.gen = ?
+				GROUP by nume_disciplina, id_clasa, id_elev) a
+		GROUP by a.id_clasa, a.id_elev
 		`
 		rows, err := db.Query(q, idScoala, gen)
 		if err != nil {
@@ -70,52 +77,21 @@ func GetDistGenuri(c *gin.Context) {
 		}
 		defer rows.Close()
 
-		eleviNote := make(map[int]map[string][]float64)
-
 		for rows.Next() {
-			var idElev int
-			var materie string
 			var nota float64
-			if err := rows.Scan(&idElev, &materie, &nota); err != nil {
+
+			if err := rows.Scan(&nota); err != nil {
 				fmt.Println("Eroare: ", err)
 			} else {
-				if _, exists := eleviNote[idElev]; !exists {
-					eleviNote[idElev] = make(map[string][]float64)
-				}
-				eleviNote[idElev][materie] = append(eleviNote[idElev][materie], nota)
+				genuri[gen] = append(genuri[gen], nota)
 			}
-		}
 
-		eleviMedii := make(map[int]float64)
-
-		for idElev, materii := range eleviNote {
-			var sumaMedii float64
-			for _, note := range materii {
-				var sumaNote float64
-				for _, nota := range note {
-					sumaNote += nota
-				}
-				mediaMaterie := sumaNote / float64(len(note))
-				sumaMedii += mediaMaterie
-			}
-			mediaGenerala := sumaMedii / float64(len(materii))
-			eleviMedii[idElev] = mediaGenerala
 		}
-
-		for _, mediaGenerala := range eleviMedii {
-			genuri[gen] = append(genuri[gen], mediaGenerala)
-		}
-	}
-
-	var date []DataGen
-	for gen, medii := range genuri {
-		if len(medii) > 0 {
-			date = append(date, DataGen{
-				X:    medii,
-				NAME: gen,
-				TIP:  "box",
-			})
-		}
+		date = append(date, DataEtnie{
+			X:    genuri[gen],
+			NAME: gen,
+			TIP:  "box",
+		})
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{"data": date, "layout": map[string]interface{}{
