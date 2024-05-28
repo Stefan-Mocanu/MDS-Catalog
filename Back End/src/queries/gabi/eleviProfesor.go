@@ -23,11 +23,11 @@ func EleviProfesor(context *gin.Context) {
 	}
 
 	// Extrage ID-ul profesorului și al școlii din context
-	idProfesor := context.PostForm("id_profesor")
+	idProfesor := ver
 	idScoala := context.PostForm("id_scoala")
 
-	if idProfesor == "" || idScoala == "" {
-		fmt.Println("ID profesor sau ID scoala lipseste")
+	if idScoala == "" {
+		fmt.Println("ID scoala lipseste")
 		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID profesor sau ID scoala lipseste"})
 		return
 	}
