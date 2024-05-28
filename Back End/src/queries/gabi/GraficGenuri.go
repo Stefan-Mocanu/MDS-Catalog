@@ -55,15 +55,12 @@ func GetDistGenuri(c *gin.Context) {
 		}
 	}
 
-	var date []DataGen
 	for gen := range genuri {
 		q := `
-		SELECT n.nota as media_generala
+		SELECT e.id_elev, n.materie, n.nota
 		FROM elev e
-		JOIN note n
-		where e.id_elev = n.id_elev
-		and e.id_clasa = n.id_clasa
-		and e.id_scoala = ? AND e.gen = ?
+		JOIN note n ON e.id_elev = n.id_elev
+		WHERE e.id_scoala = ? AND e.gen = ?
 		`
 		rows, err := db.Query(q, idScoala, gen)
 		if err != nil {
@@ -73,17 +70,48 @@ func GetDistGenuri(c *gin.Context) {
 		}
 		defer rows.Close()
 
+		eleviNote := make(map[int]map[string][]float64)
+
 		for rows.Next() {
-			var mediaGenerala float64
-			if err := rows.Scan(&mediaGenerala); err != nil {
+			var idElev int
+			var materie string
+			var nota float64
+			if err := rows.Scan(&idElev, &materie, &nota); err != nil {
 				fmt.Println("Eroare: ", err)
 			} else {
-				genuri[gen] = append(genuri[gen], mediaGenerala)
+				if _, exists := eleviNote[idElev]; !exists {
+					eleviNote[idElev] = make(map[string][]float64)
+				}
+				eleviNote[idElev][materie] = append(eleviNote[idElev][materie], nota)
 			}
 		}
-		if len(genuri[gen]) > 0 {
+
+		eleviMedii := make(map[int]float64)
+
+		for idElev, materii := range eleviNote {
+			var sumaMedii float64
+			for _, note := range materii {
+				var sumaNote float64
+				for _, nota := range note {
+					sumaNote += nota
+				}
+				mediaMaterie := sumaNote / float64(len(note))
+				sumaMedii += mediaMaterie
+			}
+			mediaGenerala := sumaMedii / float64(len(materii))
+			eleviMedii[idElev] = mediaGenerala
+		}
+
+		for _, mediaGenerala := range eleviMedii {
+			genuri[gen] = append(genuri[gen], mediaGenerala)
+		}
+	}
+
+	var date []DataGen
+	for gen, medii := range genuri {
+		if len(medii) > 0 {
 			date = append(date, DataGen{
-				X:    genuri[gen],
+				X:    medii,
 				NAME: gen,
 				TIP:  "box",
 			})
