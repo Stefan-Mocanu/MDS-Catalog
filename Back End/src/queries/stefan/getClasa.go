@@ -21,7 +21,7 @@ func GetClasa(c *gin.Context) {
 	}
 	//Obtinere date din GET
 	idScoala := c.Query("id_scoala")
-	//Verificare daca userul este PARINTE
+	//Verificare daca userul este ELEV
 	if (!VerificareRol(Rol{
 		ROL:    "Elev",
 		SCOALA: idScoala,
