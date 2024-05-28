@@ -22,11 +22,25 @@ export default function NavBar({ roluri }) {
   console.log("From navbar:");
   console.log(roluri);
   let buttons = [];
-  for (let key in roluri) {
+  for (let i=0; i< roluri.length; i++) {
+    let elev = roluri[i]["copil"];
+    let numeElev = "";
+    let clasa = ""
+    if (elev != null) {
+      numeElev = elev["nume"] + " " + elev["prenume"];
+      clasa = elev["clasa"];
+    }
+
     buttons.push(
-      <NavLink key={key} to={linkFromRole(roluri[key]["rol"], key)}>
+      <NavLink
+        className={({ isActive }) => (isActive ? "selectedbutton" : "")}
+        key={i}
+        to={linkFromRole(roluri[i]["rol"], (i+1))}
+      >
         <button>
-          {roluri[key]["rol"]} {roluri[key]["scoala"]}
+          {roluri[i]["rol"]} <br />
+          {numeElev + " " + clasa + " "}  
+          {roluri[i]["scoala"]}
         </button>
       </NavLink>
     );
@@ -37,7 +51,9 @@ export default function NavBar({ roluri }) {
         <Link to="/logout">
           <button>Logout</button>
         </Link>
-        <button>Profile</button>
+        <Link to="/">
+          <button>Profile</button>
+        </Link>
         <Link to="/addrole">
           <button>Add role</button>
         </Link>

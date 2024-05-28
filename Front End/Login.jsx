@@ -16,11 +16,12 @@ export async function action({ request }) {
       // console.log(response);
     })
     .then((response) => {
-      // redirect("/wrongcredentials");
-      // console.log("raspuns din login");
-      // alert("No user with this email/password!");
+      // console.log(response);
+      // if (!response) alert("Mail/parola gresita!");
     })
-    .catch((error) => {});
+    .catch((error) => {
+      // console.log("EROAREE");
+    });
 
   // const [ceva, setCeva] = useState("ceva");
   // if (ceva === "ceva") setCeva({ ceva: "ceva" });
@@ -35,7 +36,7 @@ export default function Login() {
       <h3>Conectare</h3>
       <Form method="post">
         <label>
-          Email<input type="text" name="email" required></input>
+          Email<input type="email" name="email" required></input>
         </label>
         <br />
         <label>

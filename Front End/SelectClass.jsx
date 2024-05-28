@@ -1,21 +1,19 @@
 import { useLoaderData } from "react-router-dom";
+import { professorLoader } from "./Professor";
 
-export async function loader({ params }) {
-  const classes = [{ className: "0", numStudents: 30 }];
-  if (params["idProfessor"] == 1)
-    classes.push({ className: "XII", numStudents: 15 });
-  return classes;
+export async function loader(props) {
+  return professorLoader(props);
 }
 
 export default function SelectClass() {
-  const classes = useLoaderData();
+  const data = useLoaderData();
+  const role = data["role"];
+  const classes = data["classes"];
+  
   return (
     <>
       <h2>Select Class</h2>
-      <div>
-        Class {classes[1]["className"]} has {classes[1]["numStudents"]}{" "}
-        students.
-      </div>
+      
     </>
   );
 }
