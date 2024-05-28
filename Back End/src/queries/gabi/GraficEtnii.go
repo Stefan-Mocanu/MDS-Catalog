@@ -122,3 +122,5 @@ func GetDistEtnii(c *gin.Context) {
 		"Title": "Repartitia mediilor pe etnii",
 	}})
 }
+
+//
