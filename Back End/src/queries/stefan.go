@@ -77,4 +77,6 @@ func Route_stefan(router gin.IRouter) {
 		Primeste ca parametrii din GET: id_scoala
 	*/
 	router.GET("/getClase", stefan.GetClasa)
+
+	router.GET("/getDistEtnii", stefan.GetDistEtnii)
 }
