@@ -30,28 +30,24 @@ func EleviClasa(context *gin.Context) {
 		return
 	}
 
-	// Verificare rol profesor sau administrator pentru școală
+	// Verificare rol profesor pentru școală
 	idScoala := context.PostForm("id_scoala")
 	if !stefan.VerificareRol(stefan.Rol{
 		ROL:    "Profesor",
 		SCOALA: idScoala,
 		ID:     ver,
-	}) && !stefan.VerificareRol(stefan.Rol{
-		ROL:    "Administrator",
-		SCOALA: idScoala,
-		ID:     ver,
 	}) {
-		fmt.Println("Userul nu este profesor sau administrator pentru aceasta scoala")
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este profesor sau administrator pentru aceasta scoala"})
+		fmt.Println("Userul nu este profesor pentru aceasta scoala")
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este profesor pentru aceasta scoala"})
 		return
 	}
 
 	// Interogare pentru a obține situația școlară a elevilor din clasa specificată
 	query := `
-		SELECT e.nume, e.prenume, d.nume_disciplina, n.nota
+		SELECT e.nume, e.prenume, d.nume, n.nota
 		FROM elev e
-		JOIN note n ON e.id = n.id_elev
-		JOIN disciplina d ON n.id_disciplina = d.id
+		JOIN note n ON e.id_elev = n.id_elev and e.id_scoala = n.id_scoala and e.id_clasa = n.id_clasa
+		JOIN discipline d ON n.nume_disciplina = d.nume
 		WHERE e.id_clasa = ?
 	`
 	rows, err := db.Query(query, idClasa)

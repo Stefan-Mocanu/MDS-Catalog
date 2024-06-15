@@ -45,12 +45,12 @@ func EleviProfesor(context *gin.Context) {
 
 	// Interogare pentru a obține informațiile despre elevi și situația lor școlară
 	query := `
-		SELECT e.nume, e.prenume, c.nume AS clasa, d.nume_disciplina, n.nota
+		SELECT e.nume, e.prenume, c.nume AS clasa, d.nume, n.nota
 		FROM elev e
-		JOIN clasa c ON e.id_clasa = c.id
-		JOIN note n ON e.id = n.id_elev
-		JOIN disciplina d ON n.id_disciplina = d.id
-		JOIN profesor p ON d.id_profesor = p.id
+		JOIN clasa c ON e.id_clasa = c.nume
+		JOIN note n ON e.id_elev = n.id_elev and e.id_clasa = n.id_clasa and e.id_scoala = n.id_scoala
+		JOIN discipline d ON n.nume_disciplina = d.nume
+		JOIN profesor p ON d.id_scoala = p.id_scoala
 		WHERE p.id = ? AND p.id_scoala = ?
 	`
 	rows, err := db.Query(query, idProfesor, idScoala)
