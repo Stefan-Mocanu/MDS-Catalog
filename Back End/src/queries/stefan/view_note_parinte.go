@@ -67,6 +67,7 @@ func View_note_parinte(c *gin.Context) {
 	var catalog_note = map[string][]Note{}
 	var catalog_activitate = map[string][]Note{}
 	var catalog_feedback = map[string][]Feedback{}
+	var absente = []Absente{}
 	for rows.Next() {
 		var materie, data string
 		var nota int
@@ -98,17 +99,25 @@ func View_note_parinte(c *gin.Context) {
 		if err := rows.Scan(&materie, &nota, &data); err != nil {
 			fmt.Println("Eroare: ", err)
 		} else {
+			if nota == 0 {
+				absente = append(absente, Absente{
+					DATA:    data,
+					MATERIE: materie,
+				})
+				continue
+			}
 			catalog_activitate[materie] = append(catalog_activitate[materie], Note{
 				NOTA: nota,
 				DATA: data,
 			})
 		}
 	}
-	q = `select nume_disciplina, content, data
+	q = `select nume_disciplina, content, data, tip
 		from feedback
 		where id_scoala = ?
 		and id_clasa = ?
 		and id_elev = ?
+		and directie = 0
 		order by data`
 	rows, err = db.Query(q, idScoala, idClasa, idElev)
 	if err != nil {
@@ -119,12 +128,14 @@ func View_note_parinte(c *gin.Context) {
 	defer rows.Close()
 	for rows.Next() {
 		var materie, data, content string
-		if err := rows.Scan(&materie, &content, &data); err != nil {
+		var tip bool
+		if err := rows.Scan(&materie, &content, &data, &tip); err != nil {
 			fmt.Println("Eroare: ", err)
 		} else {
 			catalog_feedback[materie] = append(catalog_feedback[materie], Feedback{
 				CONTENT: content,
 				DATA:    data,
+				TIP:     tip,
 			})
 		}
 	}
@@ -132,6 +143,7 @@ func View_note_parinte(c *gin.Context) {
 		"Note":       catalog_note,
 		"Activitate": catalog_activitate,
 		"Feedback":   catalog_feedback,
+		"Absente":    absente,
 	})
 
 	database.CloseDB(db)
