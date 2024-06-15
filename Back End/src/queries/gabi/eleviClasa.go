@@ -13,6 +13,7 @@ import (
 
 func EleviClasa(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
+	defer database.CloseDB(db) // Asigurăm închiderea conexiunii la baza de date
 
 	// Verificare sesiune activă
 	ver := stefan.IsSessionActiveIntern(context)
@@ -32,6 +33,12 @@ func EleviClasa(context *gin.Context) {
 
 	// Verificare rol profesor pentru școală
 	idScoala := context.PostForm("id_scoala")
+	if idScoala == "" {
+		fmt.Println("ID scoala lipseste")
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID scoala lipseste"})
+		return
+	}
+
 	if !stefan.VerificareRol(stefan.Rol{
 		ROL:    "Profesor",
 		SCOALA: idScoala,
@@ -44,9 +51,9 @@ func EleviClasa(context *gin.Context) {
 
 	// Interogare pentru a obține situația școlară a elevilor din clasa specificată
 	query := `
-		SELECT e.nume, e.prenume, d.nume, n.nota
+		SELECT e.nume, e.prenume, d.nume, n.nota, e.id_elev
 		FROM elev e
-		JOIN note n ON e.id_elev = n.id_elev and e.id_scoala = n.id_scoala and e.id_clasa = n.id_clasa
+		JOIN note n ON e.id_elev = n.id_elev AND e.id_scoala = n.id_scoala AND e.id_clasa = n.id_clasa
 		JOIN discipline d ON n.nume_disciplina = d.nume
 		WHERE e.id_clasa = ?
 	`
@@ -64,6 +71,7 @@ func EleviClasa(context *gin.Context) {
 		Prenume    string `json:"prenume"`
 		Disciplina string `json:"disciplina"`
 		Nota       int    `json:"nota"`
+		ID         int    `json:"id"`
 	}
 
 	var rezultate []SituatieElev
@@ -71,14 +79,14 @@ func EleviClasa(context *gin.Context) {
 	// Iterarea rezultatelor și adăugarea acestora în structura de rezultate
 	for rows.Next() {
 		var nume, prenume, disciplina string
-		var nota int
-		err := rows.Scan(&nume, &prenume, &disciplina, &nota)
+		var nota, id int
+		err := rows.Scan(&nume, &prenume, &disciplina, &nota, &id)
 		if err != nil {
 			fmt.Println("Eroare la scanarea rezultatelor:", err)
 			context.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la scanarea rezultatelor"})
 			return
 		}
-		rezultate = append(rezultate, SituatieElev{Nume: nume, Prenume: prenume, Disciplina: disciplina, Nota: nota})
+		rezultate = append(rezultate, SituatieElev{Nume: nume, Prenume: prenume, Disciplina: disciplina, Nota: nota, ID: id})
 	}
 
 	// Verificare erori în timpul iterării
@@ -90,7 +98,4 @@ func EleviClasa(context *gin.Context) {
 
 	// Returnarea rezultatelor în format JSON
 	context.IndentedJSON(http.StatusOK, gin.H{"data": rezultate})
-
-	database.CloseDB(db)
-
 }
