@@ -107,11 +107,12 @@ func GetBoxNoteActivitate(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este profesor in aceasta scoala"})
 		return
 	}
-	q := `select nota
+	q := `select nota, EXTRACT(YEAR FROM data) AS year, EXTRACT(MONTH FROM data) AS month
 		from note
 		where id_scoala = ?
 		and id_clasa = ?
-		and nume_disciplina = ?`
+		and nume_disciplina = ?
+		order by data`
 	rows, err := db.Query(q, idScoala, idClasa, materie)
 	if err != nil {
 		fmt.Println("Eroare: ", err)
@@ -119,22 +120,25 @@ func GetBoxNoteActivitate(c *gin.Context) {
 		return
 	}
 	note := []int{}
-
+	date_note := []string{}
 	defer rows.Close()
 	for rows.Next() {
 		var nota int
-		if err := rows.Scan(&nota); err != nil {
+		var an, luna string
+		if err := rows.Scan(&nota, &an, &luna); err != nil {
 			fmt.Println("Eroare: ", err)
 		} else {
 			note = append(note, nota)
+			date_note = append(date_note, an+"/"+luna)
 		}
 	}
-	q = `select valoare
+	q = `select valoare, EXTRACT(YEAR FROM data) AS year, EXTRACT(MONTH FROM data) AS month
 		from activitate
 		where id_scoala = ?
 		and id_clasa = ?
 		and nume_disciplina = ?
-		and not valoare = 0`
+		and not valoare = 0
+		order by data`
 	rows, err = db.Query(q, idScoala, idClasa, materie)
 	if err != nil {
 		fmt.Println("Eroare: ", err)
@@ -142,33 +146,42 @@ func GetBoxNoteActivitate(c *gin.Context) {
 		return
 	}
 	activitate := []int{}
-
+	date_activ := []string{}
 	defer rows.Close()
 	for rows.Next() {
 		var nota int
-		if err := rows.Scan(&nota); err != nil {
+		var an, luna string
+		if err := rows.Scan(&nota, &an, &luna); err != nil {
 			fmt.Println("Eroare: ", err)
 		} else {
 			activitate = append(activitate, nota)
+			date_activ = append(date_activ, an+"/"+luna)
 		}
 	}
 	type data struct {
-		X    []int  `json:"x"`
-		NAME string `json:"name"`
-		TIP  string `json:"type"`
+		X    []string `json:"x"`
+		Y    []int    `json:"y"`
+		NAME string   `json:"name"`
+		TIP  string   `json:"type"`
 	}
 	date := []data{}
 	date = append(date, data{
-		X:    note,
+		X:    date_note,
+		Y:    note,
 		NAME: "Note",
 		TIP:  "box",
 	})
 	date = append(date, data{
-		X:    activitate,
+		X:    date_activ,
+		Y:    activitate,
 		NAME: "Activitate",
 		TIP:  "box",
 	})
 	c.IndentedJSON(http.StatusOK, gin.H{"data": date, "layout": map[string]interface{}{
-		"Title": "Distributia notelor si activitatii",
+		"yaxis": map[string]interface{}{
+			"title":    "Distributia notelor si activitatii pe luni",
+			"zeroline": false,
+		},
+		"boxmode": "group",
 	}})
 }

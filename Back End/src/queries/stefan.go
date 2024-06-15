@@ -105,11 +105,15 @@ func Route_stefan(router gin.IRouter) {
 	/*
 		Obtinerea parametrilor de realizare a unui grafic barplot pentru comparatia mediilor pana la o anumita data si dupa aceasta
 		Primeste ca parametrii din GET: id_scoala, id_clasa, materie, data
+		Acest grafic este pentru profesor
 	*/
 	router.GET("/getEvolutie", stefan.GetEvolutie)
 	/*
 		Obtinerea parametrilor de realizare a unui grafic boxplot pentru vizualizarea notelor si activitatii
 		Primeste ca parametrii din GET: id_scoala, id_clasa, materie
+		Acest grafic este pentru profesor
 	*/
 	router.GET("/getNoteActivitate", stefan.GetBoxNoteActivitate)
+
+	router.GET("/GetMedieClasament", stefan.GetMedieClasament)
 }
