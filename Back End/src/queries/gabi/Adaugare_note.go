@@ -14,6 +14,7 @@ import (
 
 func Note(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
+	defer database.CloseDB(db) // Asigură închiderea conexiunii la baza de date
 
 	// Extrage valoarea notei din corpul cererii
 	valoareNotaStr := context.PostForm("valoare")
@@ -41,29 +42,24 @@ func Note(context *gin.Context) {
 		return
 	}
 
-	// Obține ID-ul profesorului și ID-ul școlii
-	var idScoala int
-	query := "SELECT id_scoala FROM profesor WHERE id_cont = ?"
-	err = db.QueryRow(query, sessionData.ID).Scan(&idScoala)
-	if err != nil {
-		fmt.Println("Eroare la obținerea ID-ului școlii profesorului:", err)
-		context.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la obținerea ID-ului școlii profesorului"})
+	// Obține ID-ul profesorului din sesiunea activă
+	idProfesor := sessionData.ID
+
+	// Extrage ID-ul școlii din formular
+	idScoalaStr := context.PostForm("id_scoala")
+	if idScoalaStr == "" {
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID-ul școlii lipsește"})
 		return
 	}
-
-	// Generează un ID unic pentru nota
-	var idNota int
-	query = "SELECT IFNULL(MAX(id_nota), 0) + 1 FROM note WHERE id_scoala = ?"
-	err = db.QueryRow(query, idScoala).Scan(&idNota)
+	idScoala, err := strconv.Atoi(idScoalaStr)
 	if err != nil {
-		fmt.Println("Eroare la generarea ID-ului notei:", err)
-		context.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la generarea ID-ului notei"})
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID-ul școlii este invalid"})
 		return
 	}
 
 	// Adaugă înregistrarea în tabela "note"
-	insertNoteStatement := "INSERT INTO note (id_nota, id_scoala, nume_disciplina, id_clasa, id_elev, nota, data) VALUES (?, ?, ?, ?, ?, ?, NOW())"
-	_, err = db.Exec(insertNoteStatement, idNota, idScoala, context.PostForm("nume_disciplina"), context.PostForm("id_clasa"), context.PostForm("id_elev"), valoareNota)
+	insertNoteStatement := "INSERT INTO note (id_scoala, nume_disciplina, id_clasa, id_elev, nota, data, id_profesor) VALUES (?, ?, ?, ?, ?, NOW(), ?)"
+	_, err = db.Exec(insertNoteStatement, idScoala, context.PostForm("nume_disciplina"), context.PostForm("id_clasa"), context.PostForm("id_elev"), valoareNota, idProfesor)
 	if err != nil {
 		fmt.Println("Eroare la adăugarea înregistrării în tabela note:", err)
 		context.IndentedJSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Eroare la adăugarea înregistrării în tabela note"})
@@ -71,6 +67,4 @@ func Note(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, gin.H{"success": true})
-
-	database.CloseDB(db)
 }
