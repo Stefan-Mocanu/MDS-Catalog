@@ -82,4 +82,24 @@ func Route_stefan(router gin.IRouter) {
 		Primeste ca parametru din GET: id_scoala
 	*/
 	router.GET("/getDevStdNote", stefan.GetDevStdNote)
+	/*
+		Trimiterea unui feedback de catre elev pentru profesor
+		Primeste ca parametrii din POST: id_scoala, id_clasa, materie, tip(0/1), continut(string)
+	*/
+	router.POST("/addFeedbackElevProf", stefan.FeedbackElevProfesor)
+	/*
+		Trimiterea unui feedback de catre profesor pentru elev
+		Primeste ca parametrii din POST: id_scoala, id_clasa, materie, tip(0/1), continut(string), id_elev
+	*/
+	router.POST("/addFeedbackProfElev", stefan.FeedbackProfesorElev)
+	/*
+		Obtinerea feedbackului primit de un profesor de la elevii unei clase la care preda
+		Primeste ca parametrii din GET: id_scoala, id_clasa, materie
+	*/
+	router.GET("/getFeedbackProf", stefan.GetFeedback)
+	/*
+		Obtinerea materiilor dintr-o clasa la care un elev face parte
+		Primeste ca parametrii din GET: id_scoala, id_clasa
+	*/
+	router.GET("/getMaterii", stefan.GetMaterii)
 }
