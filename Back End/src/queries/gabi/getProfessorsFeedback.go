@@ -119,7 +119,7 @@ func ProfessorsFeedback(c *gin.Context) {
 		X:       xValues,
 		Y:       yValues,
 		Text:    textValues,
-		Mode:    "markers+text",
+		Mode:    "markers+text", // Setăm modul de afișare pentru puncte și text la hover
 		Type:    "scatter",
 		Name:    "Professors",
 		Marker:  Marker{Size: 12},
