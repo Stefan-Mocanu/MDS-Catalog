@@ -136,13 +136,14 @@ func Route_stefan(router gin.IRouter) {
 	router.GET("/GetSunBurstIncadrare", stefan.GetSunBurstIncadrare)
 	
 	
-	
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic pentru vizualizarea fiecarui elev din scoala cu numarul de absente si media sa, separati de etnii
 		Primeste ca parametrii din GET: id_scoala
 		Acest grafic este pentru admin
 	*/
 	router.GET("/GetScatterMediiAbsente", stefan.GetGraficMediiEtnii)
+	
 	
 	
 	/*
