@@ -55,10 +55,12 @@ func EthnicityClassStats(c *gin.Context) {
 			etnie,
 			AVG(nota) AS avg_nota
 		FROM
-			elev
+			note n
+		JOIN
+			elev e ON n.id_elev = e.id_elev AND n.id_scoala = e.id_scoala AND n.id_clasa = e.id_clasa
 		WHERE
-			id_scoala = ? AND
-			id_clasa = ?
+			n.id_scoala = ? AND
+			n.id_clasa = ?
 		GROUP BY
 			etnie
 		ORDER BY
@@ -102,7 +104,7 @@ func EthnicityClassStats(c *gin.Context) {
 		"polar": map[string]interface{}{
 			"radialaxis": map[string]interface{}{
 				"visible": true,
-				"range":   [2]interface{}{0, 10}, // Modifică intervalul în funcție de necesități
+				"range":   [2]float64{0, 10}, // Modifică intervalul în funcție de necesități
 			},
 		},
 		"showlegend": false,

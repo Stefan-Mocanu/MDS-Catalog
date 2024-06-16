@@ -1,12 +1,14 @@
 package gabi
 
 import (
+	"backend/database"
 	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // Structura pentru datele de feedback ale profesorilor
@@ -17,7 +19,7 @@ type ProfessorFeedbackStats2 struct {
 	Mode    string    `json:"mode"`
 	Type    string    `json:"type"`
 	Name    string    `json:"name"`
-	Marker  Marker    `json:"marker"`
+	Marker  Marker2   `json:"marker"`
 	ShowLeg bool      `json:"showlegend"`
 }
 
@@ -27,8 +29,9 @@ type Marker2 struct {
 }
 
 func ProfessorsFeedback2(c *gin.Context) {
-	var db *sql.DB
-	defer db.Close()
+	// Inițializarea conexiunii la baza de date
+	var db *sql.DB = database.InitDb()
+	defer database.CloseDB(db)
 
 	ver := 1
 	if ver < 0 {
@@ -55,22 +58,26 @@ func ProfessorsFeedback2(c *gin.Context) {
 
 	q := `
 		SELECT 
-			p.id_profesor,
-			p.nume_profesor,
-			IFNULL(SUM(CASE WHEN f.feedback_pozitiv THEN 1 ELSE 0 END) * 100.0 / COUNT(f.id_feedback), 0) AS procent_feedback_pozitiv,
-			AVG(c.medie_clasa) AS media_clase
+			p.id,
+			p.nume,
+			IFNULL(SUM(CASE WHEN f.tip THEN 1 ELSE 0 END) * 100.0 / COUNT(f.id_feedback), 0) AS procent_feedback_pozitiv,
+			AVG(n.nota) AS media_clase
 		FROM 
 			profesor p
 		LEFT JOIN 
-			clasa c ON p.id_profesor = c.id_profesor AND p.id_scoala = c.id_scoala
+			incadrare i ON p.id = i.id_profesor AND p.id_scoala = i.id_scoala
 		LEFT JOIN 
-			feedback f ON p.id_profesor = f.id_profesor AND p.id_scoala = f.id_scoala
+			clasa c ON i.id_clasa = c.nume AND i.id_scoala = c.id_scoala
+		LEFT JOIN 
+			feedback f ON i.id_scoala = f.id_scoala
+		LEFT JOIN 
+			note n ON i.id_scoala = n.id_scoala AND c.nume = n.id_clasa
 		WHERE 
 			p.id_scoala = ?
 		GROUP BY 
-			p.id_profesor
+			p.id
 		ORDER BY 
-			p.nume_profesor
+			p.nume
 	`
 	rows, err := db.Query(q, idScoala)
 	if err != nil {
@@ -102,30 +109,30 @@ func ProfessorsFeedback2(c *gin.Context) {
 	}
 
 	// Definirea primului trace (Team A)
-	trace1 := ProfessorFeedbackStats{
+	trace1 := ProfessorFeedbackStats2{
 		X:       xValues,
 		Y:       yValues,
 		Text:    textValues,
 		Mode:    "markers+text",
 		Type:    "scatter",
 		Name:    "Team A",
-		Marker:  Marker{Size: 12},
+		Marker:  Marker2{Size: 12},
 		ShowLeg: true,
 	}
 
 	// Definirea al doilea trace (Team B) - exemplu pentru diversitate
-	trace2 := ProfessorFeedbackStats{
+	trace2 := ProfessorFeedbackStats2{
 		X:       []float64{1.5, 2.5, 3.5, 4.5, 5.5},
 		Y:       []float64{4, 1, 7, 1, 4},
 		Text:    []string{"B-a", "B-b", "B-c", "B-d", "B-e"},
 		Mode:    "markers+text",
 		Type:    "scatter",
 		Name:    "Team B",
-		Marker:  Marker{Size: 12},
+		Marker:  Marker2{Size: 12},
 		ShowLeg: true,
 	}
 
-	data := []ProfessorFeedbackStats{trace1, trace2}
+	data := []ProfessorFeedbackStats2{trace1, trace2}
 
 	layout := gin.H{
 		"xaxis": gin.H{

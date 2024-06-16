@@ -32,16 +32,10 @@ func GetEvolutieNoteElevi(c *gin.Context) {
 	}
 
 	// Extract class ID and school ID from query
-	idClasaStr := c.Query("id_clasa")
-	if idClasaStr == "" {
+	idClasa := c.Query("id_clasa")
+	if idClasa == "" {
 		fmt.Println("ID clasa lipseste")
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID clasa lipseste"})
-		return
-	}
-	idClasa, err := strconv.Atoi(idClasaStr)
-	if err != nil {
-		fmt.Println("ID clasa este invalid")
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID clasa este invalid"})
 		return
 	}
 
@@ -104,6 +98,14 @@ func GetEvolutieNoteElevi(c *gin.Context) {
 		if !contains(ani, an) {
 			ani = append(ani, an)
 		}
+	}
+
+	if len(eleviNote) == 0 {
+		fmt.Println("Nu s-au găsit note pentru elevii din această clasă.")
+		c.IndentedJSON(http.StatusOK, gin.H{"data": nil, "layout": map[string]interface{}{
+			"barmode": "stack",
+		}})
+		return
 	}
 
 	// Prepare data for JSON response

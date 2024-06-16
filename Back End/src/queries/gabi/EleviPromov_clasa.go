@@ -5,6 +5,7 @@ import (
 	"backend/queries/stefan"
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -31,7 +32,7 @@ func EleviPromov(c *gin.Context) {
 		return
 	}
 
-	// Extragem id-ul școlii din query string
+	// Extract school ID from query string
 	idScoalaStr := c.Query("id_scoala")
 	if idScoalaStr == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID scoala lipseste"})
@@ -43,7 +44,7 @@ func EleviPromov(c *gin.Context) {
 		return
 	}
 
-	// Verificăm dacă utilizatorul are rolul de Administrator pentru școala specificată
+	// Check if the user has the Administrator role for the specified school
 	if !stefan.VerificareRol(stefan.Rol{
 		ROL:    "Administrator",
 		SCOALA: idScoalaStr,
@@ -53,23 +54,24 @@ func EleviPromov(c *gin.Context) {
 		return
 	}
 
-	// Query pentru a obține procentul de elevi care au trecut (media peste 5) pentru fiecare clasă
+	// Query to get the percentage of students who passed (average grade over 5) for each class
 	q := `
-		SELECT id_clasa, COUNT(*) * 100.0 / (SELECT COUNT(*) FROM elev WHERE id_clasa = c.id_clasa AND id_scoala = ?) AS procent_trecere
+		SELECT e.id_clasa, COUNT(*) * 100.0 / (SELECT COUNT(*) FROM elev WHERE id_clasa = e.id_clasa AND id_scoala = ?) AS procent_trecere
 		FROM note n
 		JOIN elev e ON n.id_elev = e.id_elev AND n.id_scoala = e.id_scoala AND n.id_clasa = e.id_clasa
 		WHERE n.id_scoala = ? AND n.nota > 5
-		GROUP BY id_clasa
-		ORDER BY id_clasa
-	`
+		GROUP BY e.id_clasa
+		ORDER BY e.id_clasa`
+	log.Printf("Executing query: %s with idScoala = %d", q, idScoala)
 	rows, err := db.Query(q, idScoala, idScoala)
 	if err != nil {
+		log.Printf("Database query error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Eroare la interogarea bazei de date"})
 		return
 	}
 	defer rows.Close()
 
-	// Slice-uri pentru a stoca datele necesare pentru dot plot
+	// Slices to store data for the dot plot
 	var xValues []int
 	var yValues []int
 
@@ -77,14 +79,21 @@ func EleviPromov(c *gin.Context) {
 		var idClasa int
 		var procent float64
 		if err := rows.Scan(&idClasa, &procent); err != nil {
-			fmt.Println("Eroare la scanarea rezultatelor:", err)
+			log.Printf("Error scanning results: %v", err)
 			continue
 		}
 		xValues = append(xValues, idClasa)
 		yValues = append(yValues, int(procent))
 	}
 
-	// Datele pentru dot plot în format JSON
+	// Check if any data was retrieved
+	if len(xValues) == 0 {
+		log.Println("No data found for the specified school.")
+		c.JSON(http.StatusOK, gin.H{"data": nil, "message": "Nu s-au găsit date pentru școala specificată."})
+		return
+	}
+
+	// Data for the dot plot in JSON format
 	data := []map[string]interface{}{
 		{
 			"x":    xValues,
@@ -104,6 +113,7 @@ func EleviPromov(c *gin.Context) {
 		},
 	}
 
+	log.Printf("Query successful, returning data: %v", data)
 	c.IndentedJSON(http.StatusOK, gin.H{"data": data, "layout": gin.H{
 		"barmode": "stack",
 	}})

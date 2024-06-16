@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"sort"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -13,9 +15,9 @@ import (
 
 func HeatMapMediiLunileAnului(c *gin.Context) {
 	var db *sql.DB = database.InitDb()
-	defer database.CloseDB(db) // Asigură închiderea conexiunii la baza de date
+	defer database.CloseDB(db) // Ensure the database connection is closed
 
-	// Verificăm dacă sesiunea este activă
+	// Check if the session is active
 	ver := stefan.IsSessionActiveIntern(c)
 	if ver < 0 {
 		fmt.Println("Userul nu este logat")
@@ -23,14 +25,14 @@ func HeatMapMediiLunileAnului(c *gin.Context) {
 		return
 	}
 
-	// Extragem id-ul școlii din query string
+	// Extract school ID from query string
 	idScoala := c.Query("id_scoala")
 	if idScoala == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID scoala lipsește"})
 		return
 	}
 
-	// Verificăm dacă utilizatorul are rolul de Administrator pentru școala specificată
+	// Check if the user has the role of Administrator for the specified school
 	if !stefan.VerificareRol(stefan.Rol{
 		ROL:    "Administrator",
 		SCOALA: idScoala,
@@ -41,33 +43,22 @@ func HeatMapMediiLunileAnului(c *gin.Context) {
 		return
 	}
 
-	// Definim valorile pentru x (materii) și y (luni)
-	xValues := []string{"A", "B", "C", "D", "E"} // Exemplu de materii
-	yValues := []string{"W", "X", "Y", "Z"}      // Exemplu de luni
-
-	// Declaram matricea z pentru a stoca datele
-	zValues := [][]float64{
-		{0.00, 0.00, 0.75, 0.75, 0.00},
-		{0.00, 0.00, 0.75, 0.75, 0.00},
-		{0.75, 0.75, 0.75, 0.75, 0.75},
-		{0.00, 0.00, 0.00, 0.75, 0.00},
-	}
-
-	// Interogare pentru a obține mediile pe materii și lunile anului
+	// Query to get the average grades per subject and month of the year
 	q := `
 		SELECT 
-			materie,
-			luna,
-			AVG(medie) AS avg_medie
+			n.nume_disciplina AS materie,
+			DATE_FORMAT(n.data, '%Y-%m') AS luna,
+			AVG(n.nota) AS avg_medie
 		FROM 
-			medii
+			note n
 		WHERE 
-			id_scoala = ?
+			n.id_scoala = ?
 		GROUP BY 
-			materie, luna
+			n.nume_disciplina, DATE_FORMAT(n.data, '%Y-%m')
 		ORDER BY 
-			materie, luna
+			n.nume_disciplina, DATE_FORMAT(n.data, '%Y-%m')
 	`
+
 	rows, err := db.Query(q, idScoala)
 	if err != nil {
 		fmt.Println("Eroare la interogarea bazei de date:", err)
@@ -76,10 +67,12 @@ func HeatMapMediiLunileAnului(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	// Map pentru a stoca mediile pe materii și lunile anului
-	mediile := make(map[string]map[string]float64)
+	// Maps to store the subjects, months, and their corresponding average grades
+	subjects := make(map[string]struct{})
+	months := make(map[string]struct{})
+	grades := make(map[string]map[string]float64)
 
-	// Iterăm prin rezultate și populăm map-ul mediile
+	// Iterating through the results to populate the maps
 	for rows.Next() {
 		var materie, luna string
 		var avgMedie float64
@@ -87,28 +80,55 @@ func HeatMapMediiLunileAnului(c *gin.Context) {
 			fmt.Println("Eroare la scanarea rezultatelor:", err)
 			continue
 		}
-		if _, ok := mediile[materie]; !ok {
-			mediile[materie] = make(map[string]float64)
+		subjects[materie] = struct{}{}
+		months[luna] = struct{}{}
+		if _, ok := grades[materie]; !ok {
+			grades[materie] = make(map[string]float64)
 		}
-		mediile[materie][luna] = avgMedie
+		grades[materie][luna] = avgMedie
 	}
 
-	// Construim zValues bazat pe mediile obținute din baza de date
-	for i, materie := range xValues {
-		for j, luna := range yValues {
-			if medie, ok := mediile[materie][luna]; ok {
-				zValues[i][j] = medie
+	// Convert maps to slices
+	var xValues []string // subjects
+	var yValues []string // months
+	for subject := range subjects {
+		xValues = append(xValues, subject)
+	}
+	for month := range months {
+		yValues = append(yValues, month)
+	}
+
+	// Ensure months are sorted in chronological order
+	sort.Slice(yValues, func(i, j int) bool {
+		ti, _ := time.Parse("2006-01", yValues[i])
+		tj, _ := time.Parse("2006-01", yValues[j])
+		return ti.Before(tj)
+	})
+
+	// Initialize the zValues matrix
+	zValues := make([][]float64, len(yValues))
+	for i := range zValues {
+		zValues[i] = make([]float64, len(xValues))
+	}
+
+	// Populate the zValues matrix with grades
+	for i, month := range yValues {
+		for j, subject := range xValues {
+			if avgMedie, ok := grades[subject][month]; ok {
+				zValues[i][j] = avgMedie
+			} else {
+				zValues[i][j] = 0.0 // Default value for missing data
 			}
 		}
 	}
 
-	// Definim scale-ul de culori pentru heatmap
+	// Define the color scale for the heatmap
 	colorscaleValue := [][]interface{}{
 		{0, "#3D9970"},
 		{1, "#001f3f"},
 	}
 
-	// Construim datele pentru Plotly heatmap
+	// Build the data for the Plotly heatmap
 	data := []map[string]interface{}{
 		{
 			"x":          xValues,
@@ -120,7 +140,7 @@ func HeatMapMediiLunileAnului(c *gin.Context) {
 		},
 	}
 
-	// Definim layout-ul pentru heatmap
+	// Define the layout for the heatmap
 	layout := map[string]interface{}{
 		"title": "Heatmap Medii/Luni Anului",
 		"xaxis": map[string]interface{}{
@@ -131,6 +151,6 @@ func HeatMapMediiLunileAnului(c *gin.Context) {
 		},
 	}
 
-	// Returnăm datele sub forma unui răspuns JSON
+	// Return the data as a JSON response
 	c.IndentedJSON(http.StatusOK, gin.H{"data": data, "layout": layout})
 }

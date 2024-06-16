@@ -13,22 +13,22 @@ import (
 )
 
 type MedieClasa struct {
-	Clasa int     `json:"clasa"`
+	Clasa string  `json:"clasa"`
 	Medie float64 `json:"medie"`
 }
 
 func MediiClase(c *gin.Context) {
 	var db *sql.DB = database.InitDb()
-	defer database.CloseDB(db) // Asigură închiderea conexiunii la baza de date
+	defer database.CloseDB(db) // Ensure the database connection is closed
 
-	// Verificăm dacă sesiunea este activă
+	// Check if the session is active
 	ver := stefan.IsSessionActiveIntern(c)
 	if ver < 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Userul nu este logat"})
 		return
 	}
 
-	// Extragem id-ul profesorului din query string
+	// Extract professor ID from query string
 	idProfesorStr := c.Query("id_profesor")
 	if idProfesorStr == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID profesor lipsește"})
@@ -40,7 +40,7 @@ func MediiClase(c *gin.Context) {
 		return
 	}
 
-	// Verificăm dacă utilizatorul are rolul de Profesor și este asociat cu profesorul specificat
+	// Verify if the user has the role of Professor and is associated with the specified professor
 	if !stefan.VerificareRol(stefan.Rol{
 		ROL: "Profesor",
 		ID:  ver,
@@ -49,12 +49,12 @@ func MediiClase(c *gin.Context) {
 		return
 	}
 
-	// Interogarea pentru a obține media la fiecare clasă la care predă profesorul
+	// Query to get the average grade for each class the professor teaches
 	q := `
 		SELECT n.id_clasa, AVG(n.nota) AS medie
 		FROM note n
-		JOIN elev e ON n.id_elev = e.id_elev AND n.id_scoala = e.id_scoala AND n.id_clasa = e.id_clasa
-		WHERE e.id_profesor = ?
+		JOIN incadrare i ON n.id_scoala = i.id_scoala AND n.id_clasa = i.id_clasa AND n.nume_disciplina = i.nume_disciplina
+		WHERE i.id_profesor = ?
 		GROUP BY n.id_clasa
 	`
 	rows, err := db.Query(q, idProfesor)
@@ -64,7 +64,7 @@ func MediiClase(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	// Slice pentru a stoca mediile claselor
+	// Slice to store the class averages
 	var mediiClase []MedieClasa
 
 	for rows.Next() {
@@ -76,8 +76,8 @@ func MediiClase(c *gin.Context) {
 		mediiClase = append(mediiClase, medieClasa)
 	}
 
-	// Datele pentru grafic
-	var xValues []int
+	// Data for the chart
+	var xValues []string
 	var yValues []float64
 
 	for _, medieClasa := range mediiClase {
@@ -85,13 +85,13 @@ func MediiClase(c *gin.Context) {
 		yValues = append(yValues, medieClasa.Medie)
 	}
 
-	// Returnăm datele într-un format JSON compatibil cu Plotly
+	// Return data in a JSON format compatible with Plotly
 	data := []map[string]interface{}{
 		{
 			"type":     "funnel",
 			"name":     "Medii Clase",
-			"y":        xValues, // Folosim xValues ca și y pentru a afișa mediile pe axe
-			"x":        yValues, // Mediile vor fi valorile pentru axa x în grafic
+			"y":        xValues, // Use xValues as y to display the averages on the axis
+			"x":        yValues, // Averages will be the values for the x-axis in the chart
 			"textinfo": "value+percent initial",
 		},
 	}
