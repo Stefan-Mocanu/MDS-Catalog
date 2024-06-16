@@ -63,24 +63,27 @@ func ProfessorsFeedback(c *gin.Context) {
 
 	// Interogare pentru a obține procentul de feedback pozitiv și media claselor pentru fiecare profesor
 	q := `
-		SELECT 
-			p.id_profesor,
-			p.nume_profesor,
-			IFNULL(SUM(CASE WHEN f.feedback_pozitiv THEN 1 ELSE 0 END) * 100.0 / COUNT(f.id_feedback), 0) AS procent_feedback_pozitiv,
-			AVG(c.medie_clasa) AS media_clase
-		FROM 
-			profesor p
-		LEFT JOIN 
-			clasa c ON p.id_profesor = c.id_profesor AND p.id_scoala = c.id_scoala
-		LEFT JOIN 
-			feedback f ON p.id_profesor = f.id_profesor AND p.id_scoala = f.id_scoala
-		WHERE 
-			p.id_scoala = ?
-		GROUP BY 
-			p.id_profesor
-		ORDER BY 
-			p.nume_profesor
-	`
+	SELECT 
+		p.id AS id_profesor,
+		p.nume AS nume_profesor,
+		IFNULL(SUM(IF(f.tip = 1, 1, 0)) * 100.0 / COUNT(f.id_feedback), 0) AS procent_feedback_pozitiv,
+		IFNULL(AVG(n.nota), 0) AS media_clase
+	FROM 
+		profesor p
+	LEFT JOIN 
+		incadrare i ON p.id = i.id_profesor AND p.id_scoala = i.id_scoala
+	LEFT JOIN 
+		feedback f ON i.id_scoala = f.id_scoala AND i.nume_disciplina = f.nume_disciplina
+	LEFT JOIN 
+		note n ON i.id_scoala = n.id_scoala AND i.id_clasa = n.id_clasa AND i.nume_disciplina = n.nume_disciplina
+	WHERE 
+		p.id_scoala = ?
+	GROUP BY 
+		p.id
+	ORDER BY 
+		p.nume
+`
+
 	rows, err := db.Query(q, idScoala)
 	if err != nil {
 		fmt.Println("Eroare la interogarea bazei de date:", err)

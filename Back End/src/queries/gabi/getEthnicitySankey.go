@@ -72,18 +72,11 @@ func EthnicitySankey(c *gin.Context) {
 		return
 	}
 
-	// Interogare pentru a obține feedback-urile pozitive și negative pentru fiecare etnie
+	// Interogare pentru a obține toate etniile distincte din feedback-uri pentru școala specificată
 	q := `
-		SELECT 
-			IF(ethnicity = 'A1', 0, IF(ethnicity = 'A2', 1, IF(ethnicity = 'B1', 2, IF(ethnicity = 'B2', 3, IF(ethnicity = 'C1', 4, 5))))) AS source,
-			IF(feedback_pozitiv, IF(ethnicity = 'A1' OR ethnicity = 'A2', 2, IF(ethnicity = 'B1' OR ethnicity = 'B2', 3, 4)), 5) AS target,
-			COUNT(*) AS value
-		FROM 
-			feedback
-		WHERE 
-			id_scoala = ?
-		GROUP BY 
-			source, target
+		SELECT DISTINCT etnie
+		FROM elev
+		WHERE id_scoala = ?
 	`
 	rows, err := db.Query(q, idScoala)
 	if err != nil {
@@ -93,20 +86,16 @@ func EthnicitySankey(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	// Slice-uri pentru a stoca datele necesare pentru grafic
-	var sourceValues []int
-	var targetValues []int
-	var valueValues []int
+	// Slice pentru a stoca etniile
+	var etnii []string
 
 	for rows.Next() {
-		var source, target, value int
-		if err := rows.Scan(&source, &target, &value); err != nil {
+		var ethnicity string
+		if err := rows.Scan(&ethnicity); err != nil {
 			fmt.Println("Eroare la scanarea rezultatelor:", err)
 			continue
 		}
-		sourceValues = append(sourceValues, source)
-		targetValues = append(targetValues, target)
-		valueValues = append(valueValues, value)
+		etnii = append(etnii, ethnicity)
 	}
 
 	// Definim structura de date pentru Plotly Sankey
@@ -120,13 +109,13 @@ func EthnicitySankey(c *gin.Context) {
 				Color: "black",
 				Width: 0.5,
 			},
-			Label: []string{"A1", "A2", "B1", "B2", "C1", "C2"},
-			Color: []string{"blue", "blue", "blue", "blue", "blue", "blue"},
+			Label: etnii,                      // Utilizăm aici toate etniile obținute din feedback-uri
+			Color: make([]string, len(etnii)), // Alocăm culori pentru fiecare etnie
 		},
 		Link: Link{
-			Source: sourceValues,
-			Target: targetValues,
-			Value:  valueValues,
+			Source: []int{0, 1, 2, 3, 4, 5},       // Exemplu: Sursa poate fi indexată conform ordinei etniilor
+			Target: []int{2, 3, 4, 5, 0, 1},       // Exemplu: Ținta poate fi indexată conform ordinei etniilor
+			Value:  []int{10, 20, 30, 40, 50, 60}, // Exemplu: Valoare pentru conexiuni între etnii
 		},
 	}
 
