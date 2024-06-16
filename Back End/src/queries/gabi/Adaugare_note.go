@@ -2,7 +2,6 @@ package gabi
 
 import (
 	"backend/database"
-	// "backend/queries/stefan"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -12,59 +11,74 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func Note(context *gin.Context) {
+// Funcția pentru adăugarea unei note
+func AdaugaNota(c *gin.Context) {
 	var db *sql.DB = database.InitDb()
-	defer database.CloseDB(db) // Asigură închiderea conexiunii la baza de date
+	defer database.CloseDB(db)
 
 	// Extrage valoarea notei din corpul cererii
-	valoareNotaStr := context.PostForm("valoare")
+	valoareNotaStr := c.PostForm("valoare")
 	if valoareNotaStr == "" {
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Valoarea notei lipsește"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Valoarea notei lipsește"})
 		return
 	}
 
 	// Conversia notei la int
 	valoareNota, err := strconv.Atoi(valoareNotaStr)
 	if err != nil || valoareNota < 1 || valoareNota > 10 {
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Valoarea notei este invalidă"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Valoarea notei este invalidă"})
 		return
 	}
 
 	// Obține cookie-ul de sesiune și validează-l
-	// cookie, err := context.Cookie("session_cookie")
-	// if err != nil {
-	// 	context.IndentedJSON(http.StatusOK, gin.H{"success": false, "error": "Sesiunea nu a fost găsită"})
-	// 	return
-	// }
-	// sessionData, ok := stefan.Sessions[cookie]
-	// if !ok {
-	// 	context.IndentedJSON(http.StatusOK, gin.H{"success": false, "error": "Sesiunea nu este validă"})
-	// 	return
-	// }
-
-	// Obține ID-ul profesorului din sesiunea activă
-	// idProfesor := sessionData.ID
-
-	// Extrage ID-ul școlii din formular
-	idScoalaStr := context.PostForm("id_scoala")
-	if idScoalaStr == "" {
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID-ul școlii lipsește"})
+	cookie, err := c.Cookie("session_cookie")
+	if err != nil {
+		c.IndentedJSON(http.StatusOK, gin.H{"success": false, "error": "Sesiunea nu a fost găsită"})
 		return
 	}
-	idScoala, err := strconv.Atoi(idScoalaStr)
+
+	// Obține ID-ul profesorului asociat contului din sesiune și ID-ul școlii curente
+	var idProfesor, idScoala int
+	query := `
+		SELECT p.id_profesor, p.id_scoala
+		FROM profesor p
+		JOIN cont c ON p.id_cont = c.id_cont
+		WHERE c.cookie = ?
+	`
+	err = db.QueryRow(query, cookie).Scan(&idProfesor, &idScoala)
 	if err != nil {
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID-ul școlii este invalid"})
+		fmt.Println("Eroare la obținerea ID-ului profesorului:", err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la obținerea ID-ului profesorului"})
+		return
+	}
+
+	// Verifică dacă profesorul este asociat școlii curente
+	idScoalaCurentaStr := c.PostForm("id_scoala")
+	if idScoalaCurentaStr == "" {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID-ul școlii curente lipsește"})
+		return
+	}
+	idScoalaCurenta, err := strconv.Atoi(idScoalaCurentaStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID-ul școlii curente este invalid"})
+		return
+	}
+	if idScoala != idScoalaCurenta {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Profesorul nu este asociat acestei școli"})
 		return
 	}
 
 	// Adaugă înregistrarea în tabela "note"
-	insertNoteStatement := "INSERT INTO note (id_scoala, nume_disciplina, id_clasa, id_elev, nota, data) VALUES (?, ?, ?, ?, ?, NOW())"
-	_, err = db.Exec(insertNoteStatement, idScoala, context.PostForm("nume_disciplina"), context.PostForm("id_clasa"), context.PostForm("id_elev"), valoareNota)
+	insertNoteStatement := `
+		INSERT INTO note (id_scoala, id_profesor, nume_disciplina, id_clasa, id_elev, nota, data)
+		VALUES (?, ?, ?, ?, ?, ?, NOW())
+	`
+	_, err = db.Exec(insertNoteStatement, idScoala, idProfesor, c.PostForm("nume_disciplina"), c.PostForm("id_clasa"), c.PostForm("id_elev"), valoareNota)
 	if err != nil {
 		fmt.Println("Eroare la adăugarea înregistrării în tabela note:", err)
-		context.IndentedJSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Eroare la adăugarea înregistrării în tabela note"})
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Eroare la adăugarea înregistrării în tabela note"})
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, gin.H{"success": true})
+	c.IndentedJSON(http.StatusOK, gin.H{"success": true})
 }

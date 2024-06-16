@@ -38,11 +38,11 @@ func Route_gabi(router gin.IRouter) {
 
 	// Adăugarea unei note pentru un elev
 	// Primesc ca parametrii din POST: nota, nume_disciplina, id_clasa, id_elev
-	router.POST("/adaugareNota", gabi.Note)
+	router.POST("/adaugareNota", gabi.AdaugaNota)
 
 	// Adăugarea unei prezențe pentru un elev
 	// Primesc ca parametrii din POST: valoarea_prezentei(0 sau 1), id_profesor, id_scoala, nume_disciplina, id_clasa, id_elev
-	router.POST("/adaugarePrezenta", gabi.Prezenta)
+	router.POST("/adaugarePrezenta", gabi.AdaugaActivitate)
 
 	// Obținerea claselor asociate unui profesor
 	// Primesc ca parametrii din POST: id_profesor
