@@ -118,13 +118,13 @@ group by t.nume;`
 		},
 		"width": 600,
 		"xaxis1": map[string]interface{}{
-			"domain": []float64{0, 0.5},
+			"domain": []float64{0.25, 0.625},
 		},
 		"xaxis2": map[string]interface{}{
-			"domain": []float64{0.5, 1},
+			"domain": []float64{0.625, 1},
 		},
 		"barmode": "stack",
-		"legeng": map[string]interface{}{
+		"legend": map[string]interface{}{
 			"x": 0.029,
 			"y": 1.238,
 			"font": map[string]interface{}{
