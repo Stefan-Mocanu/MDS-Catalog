@@ -111,7 +111,7 @@ func Route_stefan(router gin.IRouter) {
 	*/
 	router.GET("/getEvolutie", stefan.GetEvolutie)
 	
-	//mai tarziu
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic boxplot pentru vizualizarea notelor si activitatii
 		Primeste ca parametrii din GET: id_scoala, id_clasa, materie
@@ -180,7 +180,8 @@ func Route_stefan(router gin.IRouter) {
 	*/
 	router.GET("/GetHeatmapIncadrare", stefan.GetHeatMapIncadrare)
 	
-	
+
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic
 		Primeste ca parametrii din GET: id_scoala, id_clasa, materie
@@ -205,5 +206,6 @@ func Route_stefan(router gin.IRouter) {
 	*/
 	router.GET("/GetCorelatiaActivNote", stefan.GetCorelatieActivNote)
 
+	//facut dar nu prea merge
 	router.GET("/GetFeedbackChart", stefan.GetFeedbackChart)
 }
