@@ -49,7 +49,7 @@ func GetEvolutieTimp(c *gin.Context) {
 			MONTH(n.data);`
 
 	id_clasa := c.Query("id_clasa")
-	nume_disciplina := c.Query("nume_disciplina")
+	nume_disciplina := c.Query("materie")
 	id_elev := c.Query("id_elev")
 
 	rows, err := db.Query(q, id_scoala, id_clasa, nume_disciplina, id_scoala, id_clasa, id_elev, nume_disciplina)
