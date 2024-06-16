@@ -115,7 +115,6 @@ func ProfessorsFeedback2(c *gin.Context) {
 		Text:    textValues,
 		Mode:    "markers+text",
 		Type:    "scatter",
-		Name:    "Team A",
 		Marker:  Marker2{Size: 12},
 		ShowLeg: true,
 	}
@@ -127,7 +126,6 @@ func ProfessorsFeedback2(c *gin.Context) {
 		Text:    []string{"B-a", "B-b", "B-c", "B-d", "B-e"},
 		Mode:    "markers+text",
 		Type:    "scatter",
-		Name:    "Team B",
 		Marker:  Marker2{Size: 12},
 		ShowLeg: true,
 	}
