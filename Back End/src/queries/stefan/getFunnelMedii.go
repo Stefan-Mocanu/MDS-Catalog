@@ -72,12 +72,12 @@ WHERE avg_medie > ?;`
 			break
 		}
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"data": map[string]interface{}{
+	c.IndentedJSON(http.StatusOK, gin.H{"data": []map[string]interface{}{{
 		"type":      "funnel",
 		"y":         labels,
 		"x":         valori,
 		"hoverinfo": "x+percent previous+percent initial",
-	}, "layout": map[string]interface{}{
+	}}, "layout": map[string]interface{}{
 		"margin": map[string]interface{}{"l": 150},
 		"width":  600,
 		"height": 500,

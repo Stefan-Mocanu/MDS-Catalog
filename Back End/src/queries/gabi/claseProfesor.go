@@ -2,7 +2,6 @@ package gabi
 
 import (
 	"backend/database"
-	"backend/queries/stefan"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -13,37 +12,46 @@ import (
 
 func Clase_Profesor(context *gin.Context) {
 	var db *sql.DB = database.InitDb()
+	defer database.CloseDB(db)
 
-	// Verificare sesiune activă
-	ver := stefan.IsSessionActiveIntern(context)
-	if ver < 0 {
-		fmt.Println("Userul nu este logat")
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este logat"})
+	// Verificare sesiune activă și obținere id_cont din sesiune
+	cookie, err := context.Cookie("session_cookie")
+	if err != nil {
+		fmt.Println("Sesiunea nu a fost găsită")
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Sesiunea nu a fost găsită"})
 		return
 	}
 
-	// Extrage ID-ul profesorului din context
-	idProfesor := ver
-	// if idProfesor == "" {
-	// 	fmt.Println("ID profesor lipseste")
-	// 	context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID profesor lipseste"})
-	// 	return
-	// }
+	// Obținerea id_cont din sesiune
+	var idCont int
+	query := "SELECT id_cont FROM cont WHERE cookie = ?"
+	err = db.QueryRow(query, cookie).Scan(&idCont)
+	if err != nil {
+		fmt.Println("Eroare la obținerea id_cont din sesiune:", err)
+		context.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la obținerea id_cont din sesiune"})
+		return
+	}
+
+	// Obținerea id_profesor asociat id_cont din sesiune
+	var idProfesor int
+	query = "SELECT id_profesor FROM profesor WHERE id_cont = ?"
+	err = db.QueryRow(query, idCont).Scan(&idProfesor)
+	if err != nil {
+		fmt.Println("Eroare la obținerea id_profesor din baza de date:", err)
+		context.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la obținerea id_profesor din baza de date"})
+		return
+	}
 
 	// Verificare rol profesor pentru școală
 	idScoala := context.PostForm("id_scoala")
-	if !stefan.VerificareRol(stefan.Rol{
-		ROL:    "Profesor",
-		SCOALA: idScoala,
-		ID:     ver,
-	}) {
-		fmt.Println("Userul nu este profesor pentru aceasta scoala")
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este profesor pentru aceasta scoala"})
+	if !VerificaRolProfesor(idProfesor, idScoala, db) {
+		fmt.Println("Profesorul nu este asociat acestei școli sau rolul nu este Profesor")
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Profesorul nu este asociat acestei școli sau rolul nu este Profesor"})
 		return
 	}
 
 	// Interogare pentru a obține clasele și disciplinele profesorului
-	query := `
+	query = `
 		SELECT id_clasa, nume_disciplina
 		FROM incadrare
 		WHERE id_profesor = ? AND id_scoala = ?
@@ -85,7 +93,20 @@ func Clase_Profesor(context *gin.Context) {
 
 	// Returnarea rezultatelor în format JSON
 	context.IndentedJSON(http.StatusOK, gin.H{"data": rezultate})
+}
 
-	database.CloseDB(db)
-
+// Funcție pentru verificarea rolului profesorului pentru o școală specificată
+func VerificaRolProfesor(idProfesor int, idScoala string, db *sql.DB) bool {
+	query := `
+		SELECT COUNT(*)
+		FROM profesor
+		WHERE id_profesor = ? AND id_scoala = ? AND rol = "Profesor"
+	`
+	var count int
+	err := db.QueryRow(query, idProfesor, idScoala).Scan(&count)
+	if err != nil {
+		fmt.Println("Eroare la verificarea rolului profesorului:", err)
+		return false
+	}
+	return count > 0
 }
