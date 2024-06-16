@@ -63,4 +63,12 @@ func Route_gabi(router gin.IRouter) {
 	// Obținerea distribuției mediilor pe etnii
 	// Răspunde la GET cu distribuția mediilor pe genuri pentru școala specificată
 	router.GET("/getRepMediiGen", gabi.GetDistGenuri)
+
+	router.GET("/GetEvolNoteElevi", gabi.GetEvolutieNoteElevi)
+
+	router.GET("/MediiClase", gabi.MediiClase)
+
+	router.GET("/HM_MediiLuniA", gabi.HeatMapMediiLunileAnului)
+
+	router.GET("/EleviPromov", gabi.EleviPromov)
 }
