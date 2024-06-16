@@ -198,24 +198,34 @@ func Route_stefan(router gin.IRouter) {
 		Acest grafic este pentru profesor
 	*/
 	router.GET("/GetCorelatiaActivNote", stefan.GetCorelatieActivNote)
+	
+	
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic
 		Primeste ca parametrii din GET: id_scoala
 		Acest grafic este pentru administrator
 	*/
 	router.GET("/GetFeedbackChart", stefan.GetFeedbackChart)
+	
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic
 		Primeste ca parametrii din GET: id_scoala
 		Acest grafic este pentru administrator
 	*/
 	router.GET("/GetProcPozitiv", stefan.GetProcPozitiv)
+	
+	//facut dar nu merge
 	/*
 		Obtinerea parametrilor de realizare a unui grafic
 		Primeste ca parametrii din GET: id_scoala, id_clasa, materie
 		Acest grafic este pentru profesor
 	*/
 	router.GET("/GetPieFeedback", stefan.GetPieFeedback)
+	
+	//TODO: mai tarziu
+	//mai tarziu
 	/*
 		Obtinerea parametrilor de realizare a unui grafic
 		Primeste ca parametrii din GET: id_scoala, id_clasa, nume_disciplina, id_elev
