@@ -108,12 +108,12 @@ and p.id = i.id_profesor`
 		PARENTS []string `json:"parents"`
 		LABELS  []string `json:"labels"`
 	}
-	x := data{
+	x := []data{{
 		TYPE:    "sunburst",
 		IDS:     ids,
 		PARENTS: parents,
 		LABELS:  labels,
-	}
+	}}
 	c.IndentedJSON(http.StatusOK, gin.H{"data": x, "layout": map[string]interface{}{
 		"margin": map[string]interface{}{"t": 0, "b": 0, "l": 0, "r": 0},
 	}})
