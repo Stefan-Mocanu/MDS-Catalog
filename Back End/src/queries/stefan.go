@@ -145,13 +145,17 @@ func Route_stefan(router gin.IRouter) {
 	router.GET("/GetScatterMediiAbsente", stefan.GetGraficMediiEtnii)
 	
 	
-	
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic funnel cu mediile din scoala
 		Primeste ca parametrii din GET: id_scoala
 		Acest grafic este pentru admin
 	*/
 	router.GET("/GetFunnelMedii", stefan.GetFunnelMedii)
+	
+	
+	
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic heatmap pentru vizualizarea mediilor si activitarii elevilor
 		Primeste ca parametrii din GET: id_scoala
@@ -167,24 +171,33 @@ func Route_stefan(router gin.IRouter) {
 		Acest grafic este pentru parinte
 	*/
 	router.GET("/GetEvolutieElev", stefan.GetEvolutieElev)
+	
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic heatmap pentru vizualizarea incadrarii clasa/materie
 		Primeste ca parametrii din GET: id_scoala
 		Acest grafic este pentru admin
 	*/
 	router.GET("/GetHeatmapIncadrare", stefan.GetHeatMapIncadrare)
+	
+	
 	/*
 		Obtinerea parametrilor de realizare a unui grafic
 		Primeste ca parametrii din GET: id_scoala, id_clasa, materie
 		Acest grafic este pentru profesor
 	*/
 	router.GET("/GetFeedbackPoints", stefan.GetFeedbackPoints)
+	
+	
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic
 		Primeste ca parametrii din GET: id_scoala
 		Acest grafic este pentru admin
 	*/
 	router.GET("/GetParralelCatFeedback", stefan.GetParralelCategoriesFeedback)
+	
+	
 	/*
 		Obtinerea parametrilor de realizare a unui grafic
 		Primeste ca parametrii din GET: id_scoala, id_clasa, materie, start_date_activ, end_date_activ, start_date_note, end_date_note
