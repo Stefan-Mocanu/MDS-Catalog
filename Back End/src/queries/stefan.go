@@ -156,4 +156,22 @@ func Route_stefan(router gin.IRouter) {
 		Acest grafic este pentru admin
 	*/
 	router.GET("/GetHeatmapIncadrare", stefan.GetHeatMapIncadrare)
+	/*
+		Obtinerea parametrilor de realizare a unui grafic
+		Primeste ca parametrii din GET: id_scoala, id_clasa, materie
+		Acest grafic este pentru profesor
+	*/
+	router.GET("/GetFeedbackPoints", stefan.GetFeedbackPoints)
+	/*
+		Obtinerea parametrilor de realizare a unui grafic
+		Primeste ca parametrii din GET: id_scoala
+		Acest grafic este pentru admin
+	*/
+	router.GET("/GetParralelCatFeedback", stefan.GetParralelCategoriesFeedback)
+	/*
+		Obtinerea parametrilor de realizare a unui grafic
+		Primeste ca parametrii din GET: id_scoala, id_clasa, materie, start_date_activ, end_date_activ, start_date_note, end_date_note
+		Acest grafic este pentru profesor
+	*/
+	router.GET("/GetCorelatiaActivNote", stefan.GetCorelatieActivNote)
 }

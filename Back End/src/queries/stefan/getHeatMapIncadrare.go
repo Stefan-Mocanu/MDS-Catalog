@@ -88,13 +88,13 @@ func GetHeatMapIncadrare(c *gin.Context) {
 			}
 		}
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"data": map[string]interface{}{
+	c.IndentedJSON(http.StatusOK, gin.H{"data": []map[string]interface{}{{
 		"z":           z,
 		"x":           x,
 		"y":           y,
 		"type":        "heatmap",
 		"hoverongaps": false,
-	}, "layout": map[string]interface{}{
+	}}, "layout": map[string]interface{}{
 		"title": "Verificare clasa are materie",
 		"xaxis": map[string]interface{}{
 			"title": "Clase",
