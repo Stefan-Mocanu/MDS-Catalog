@@ -2,7 +2,7 @@ package gabi
 
 import (
 	"backend/database"
-	"backend/queries/stefan"
+	// "backend/queries/stefan"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -31,19 +31,19 @@ func Note(context *gin.Context) {
 	}
 
 	// Obține cookie-ul de sesiune și validează-l
-	cookie, err := context.Cookie("session_cookie")
-	if err != nil {
-		context.IndentedJSON(http.StatusOK, gin.H{"success": false, "error": "Sesiunea nu a fost găsită"})
-		return
-	}
-	sessionData, ok := stefan.Sessions[cookie]
-	if !ok {
-		context.IndentedJSON(http.StatusOK, gin.H{"success": false, "error": "Sesiunea nu este validă"})
-		return
-	}
+	// cookie, err := context.Cookie("session_cookie")
+	// if err != nil {
+	// 	context.IndentedJSON(http.StatusOK, gin.H{"success": false, "error": "Sesiunea nu a fost găsită"})
+	// 	return
+	// }
+	// sessionData, ok := stefan.Sessions[cookie]
+	// if !ok {
+	// 	context.IndentedJSON(http.StatusOK, gin.H{"success": false, "error": "Sesiunea nu este validă"})
+	// 	return
+	// }
 
 	// Obține ID-ul profesorului din sesiunea activă
-	idProfesor := sessionData.ID
+	// idProfesor := sessionData.ID
 
 	// Extrage ID-ul școlii din formular
 	idScoalaStr := context.PostForm("id_scoala")
@@ -58,8 +58,8 @@ func Note(context *gin.Context) {
 	}
 
 	// Adaugă înregistrarea în tabela "note"
-	insertNoteStatement := "INSERT INTO note (id_scoala, nume_disciplina, id_clasa, id_elev, nota, data, id_profesor) VALUES (?, ?, ?, ?, ?, NOW(), ?)"
-	_, err = db.Exec(insertNoteStatement, idScoala, context.PostForm("nume_disciplina"), context.PostForm("id_clasa"), context.PostForm("id_elev"), valoareNota, idProfesor)
+	insertNoteStatement := "INSERT INTO note (id_scoala, nume_disciplina, id_clasa, id_elev, nota, data) VALUES (?, ?, ?, ?, ?, NOW())"
+	_, err = db.Exec(insertNoteStatement, idScoala, context.PostForm("nume_disciplina"), context.PostForm("id_clasa"), context.PostForm("id_elev"), valoareNota)
 	if err != nil {
 		fmt.Println("Eroare la adăugarea înregistrării în tabela note:", err)
 		context.IndentedJSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Eroare la adăugarea înregistrării în tabela note"})
