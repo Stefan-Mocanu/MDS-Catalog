@@ -35,13 +35,15 @@ func GetPieFeedback(c *gin.Context) {
 	id_clasa := c.Query("id_clasa")
 	nume_disciplina := c.Query("nume_disciplina")
 	q := `SELECT 
-	SUM(CASE WHEN tip = 1 THEN 1 ELSE 0 END) AS positive_feedback_count,
-	SUM(CASE WHEN tip = 0 THEN 1 ELSE 0 END) AS negative_feedback_count
-	FROM feedback
-	WHERE id_scoala = ?
-	AND id_clasa = ?
-	AND nume_disciplina = ?
-	AND directie = 1;`
+    COALESCE(SUM(CASE WHEN tip = 1 THEN 1 ELSE 0 END), 0) AS positive_feedback_count,
+    COALESCE(SUM(CASE WHEN tip = 0 THEN 1 ELSE 0 END), 0) AS negative_feedback_count
+FROM 
+    feedback
+WHERE 
+    id_scoala = ?
+    AND id_clasa = ?
+    AND nume_disciplina = ?
+    AND directie = 1;`
 	var p_count, n_count int
 	err := db.QueryRow(q, id_scoala, id_clasa, nume_disciplina).Scan(&p_count, &n_count)
 	if err != nil {
