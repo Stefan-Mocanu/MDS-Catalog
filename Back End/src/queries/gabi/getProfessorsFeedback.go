@@ -13,14 +13,14 @@ import (
 )
 
 type ProfessorFeedbackStats struct {
-	X       []float64 `json:"x"`
-	Y       []float64 `json:"y"`
-	Text    []string  `json:"text"`
-	Mode    string    `json:"mode"`
-	Type    string    `json:"type"`
-	Name    string    `json:"name"`
-	Marker  Marker    `json:"marker"`
-	ShowLeg bool      `json:"showlegend"`
+	X       []float64  `json:"x"`
+	Y       []float64  `json:"y"`
+	Text    [][]string `json:"text"`
+	Mode    string     `json:"mode"`
+	Type    string     `json:"type"`
+	Name    string     `json:"name"`
+	Marker  Marker     `json:"marker"`
+	ShowLeg bool       `json:"showlegend"`
 }
 
 type Marker struct {
@@ -95,7 +95,7 @@ func ProfessorsFeedback(c *gin.Context) {
 	// Slice-uri pentru a stoca datele necesare pentru grafic
 	var xValues []float64
 	var yValues []float64
-	var textValues []string
+	var textValues [][]string
 
 	for rows.Next() {
 		var idProfesor int
@@ -110,7 +110,7 @@ func ProfessorsFeedback(c *gin.Context) {
 		if procentFeedbackPozitiv.Valid && mediaClase.Valid {
 			xValues = append(xValues, procentFeedbackPozitiv.Float64)
 			yValues = append(yValues, mediaClase.Float64)
-			textValues = append(textValues, fmt.Sprintf("%s: %.2f%%", numeProfesor, procentFeedbackPozitiv.Float64))
+			textValues = append(textValues, []string{fmt.Sprintf("%s: %.2f%%", numeProfesor, procentFeedbackPozitiv.Float64)})
 		}
 	}
 
