@@ -174,4 +174,6 @@ func Route_stefan(router gin.IRouter) {
 		Acest grafic este pentru profesor
 	*/
 	router.GET("/GetCorelatiaActivNote", stefan.GetCorelatieActivNote)
+
+	router.GET("/GetFeedbackChart", stefan.GetFeedbackChart)
 }
