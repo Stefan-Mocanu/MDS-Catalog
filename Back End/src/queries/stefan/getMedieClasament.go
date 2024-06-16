@@ -25,12 +25,12 @@ func GetMedieClasament(c *gin.Context) {
 	idElev := c.Query("id_elev")
 	//Verificare daca useul este ADMIN
 	if (!VerificareRol(Rol{
-		ROL:    "Profesor",
+		ROL:    "Parinte",
 		SCOALA: idScoala,
 		ID:     ver,
 	})) {
-		fmt.Println("Userul nu este profesor in aceasta scoala")
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este profesor in aceasta scoala"})
+		fmt.Println("Userul nu este parinte in aceasta scoala")
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este parinte in aceasta scoala"})
 		return
 	}
 	q := `WITH Student1AvgGrades AS (

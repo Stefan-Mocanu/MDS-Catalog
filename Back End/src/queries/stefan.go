@@ -114,6 +114,46 @@ func Route_stefan(router gin.IRouter) {
 		Acest grafic este pentru profesor
 	*/
 	router.GET("/getNoteActivitate", stefan.GetBoxNoteActivitate)
-
+	/*
+		Obtinerea parametrilor de realizare a unui grafic pentru vizualizarea mediilor la fiecare materie si locul in clasamentul clasei
+		Primeste ca parametrii din GET: id_scoala, id_clasa, id_elev
+		Acest grafic este pentru parinte
+	*/
 	router.GET("/GetMedieClasament", stefan.GetMedieClasament)
+	/*
+		Obtinerea parametrilor de realizare a unui grafic sunburst pentru vizualizarea incadrarii profesorale
+		Primeste ca parametrii din GET: id_scoala
+		Acest grafic este pentru admin
+	*/
+	router.GET("/GetSunBurstIncadrare", stefan.GetSunBurstIncadrare)
+	/*
+		Obtinerea parametrilor de realizare a unui grafic pentru vizualizarea fiecarui elev din scoala cu numarul de absente si media sa, separati de etnii
+		Primeste ca parametrii din GET: id_scoala
+		Acest grafic este pentru admin
+	*/
+	router.GET("/GetScatterMediiAbsente", stefan.GetGraficMediiEtnii)
+	/*
+		Obtinerea parametrilor de realizare a unui grafic funnel cu mediile din scoala
+		Primeste ca parametrii din GET: id_scoala
+		Acest grafic este pentru admin
+	*/
+	router.GET("/GetFunnelMedii", stefan.GetFunnelMedii)
+	/*
+		Obtinerea parametrilor de realizare a unui grafic heatmap pentru vizualizarea mediilor si activitarii elevilor
+		Primeste ca parametrii din GET: id_scoala
+		Acest grafic este pentru admin
+	*/
+	router.GET("/GetHeatmapMediiActiv", stefan.GetHeatMapMediiActiv)
+	/*
+		Obtinerea parametrilor de realizare a unui grafic pentru fiecare materie cu evolutia mediei de acum 30 de zile si in prezent
+		Primeste ca parametrii din GET: id_scoala, id_clasa, id_elev
+		Acest grafic este pentru parinte
+	*/
+	router.GET("/GetEvolutieElev", stefan.GetEvolutieElev)
+	/*
+		Obtinerea parametrilor de realizare a unui grafic heatmap pentru vizualizarea incadrarii clasa/materie
+		Primeste ca parametrii din GET: id_scoala
+		Acest grafic este pentru admin
+	*/
+	router.GET("/GetHeatmapIncadrare", stefan.GetHeatMapIncadrare)
 }
