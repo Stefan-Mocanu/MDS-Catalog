@@ -71,4 +71,20 @@ func Route_gabi(router gin.IRouter) {
 	router.GET("/HM_MediiLuniA", gabi.HeatMapMediiLunileAnului)
 
 	router.GET("/EleviPromov", gabi.EleviPromov)
+
+	router.GET("/FeedbackuriProfesori", gabi.FeedbackuriProfesori)
+
+	router.GET("/EthnicityClassStats", gabi.EthnicityClassStats)
+
+	router.GET("/FeedbackuriProfesori", gabi.FeedbackuriProfesori)
+
+	router.GET("/getProfessorsFeedback2", gabi.ProfessorsFeedback2)
+
+	router.GET("/getProfessorsFeedback", gabi.ProfessorsFeedback)
+
+	router.GET("EthnicitySankey", gabi.EthnicitySankey)
+
+	router.GET("/getEthnicityClassStats", gabi.EthnicityClassStats)
+
+	router.GET("/ChatFeedbackProf", gabi.FeedbackuriProfesori)
 }
