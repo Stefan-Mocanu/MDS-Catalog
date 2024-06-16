@@ -76,7 +76,7 @@ func Route_gabi(router gin.IRouter) {
 
 	router.GET("/EthnicityClassStats", gabi.EthnicityClassStats)
 
-	router.GET("/FeedbackuriProfesori", gabi.FeedbackuriProfesori)
+	// router.GET("/FeedbackuriProfesori", gabi.FeedbackuriProfesori)
 
 	router.GET("/getProfessorsFeedback2", gabi.ProfessorsFeedback2)
 
