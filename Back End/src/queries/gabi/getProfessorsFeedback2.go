@@ -108,8 +108,8 @@ func ProfessorsFeedback2(c *gin.Context) {
 		}
 	}
 
-	// Definirea primului trace (Team A)
-	trace1 := ProfessorFeedbackStats2{
+	// Definirea trace pentru graficul de tip scatter
+	trace := ProfessorFeedbackStats2{
 		X:       xValues,
 		Y:       yValues,
 		Text:    textValues,
@@ -119,18 +119,7 @@ func ProfessorsFeedback2(c *gin.Context) {
 		ShowLeg: true,
 	}
 
-	// Definirea al doilea trace (Team B) - exemplu pentru diversitate
-	trace2 := ProfessorFeedbackStats2{
-		X:       []float64{1.5, 2.5, 3.5, 4.5, 5.5},
-		Y:       []float64{4, 1, 7, 1, 4},
-		Text:    []string{"B-a", "B-b", "B-c", "B-d", "B-e"},
-		Mode:    "markers+text",
-		Type:    "scatter",
-		Marker:  Marker2{Size: 12},
-		ShowLeg: true,
-	}
-
-	data := []ProfessorFeedbackStats2{trace1, trace2}
+	data := []ProfessorFeedbackStats2{trace}
 
 	layout := gin.H{
 		"xaxis": gin.H{
