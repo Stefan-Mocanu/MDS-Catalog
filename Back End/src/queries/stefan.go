@@ -216,7 +216,7 @@ func Route_stefan(router gin.IRouter) {
 	*/
 	router.GET("/GetProcPozitiv", stefan.GetProcPozitiv)
 	
-	//facut dar nu merge
+	//facut
 	/*
 		Obtinerea parametrilor de realizare a unui grafic
 		Primeste ca parametrii din GET: id_scoala, id_clasa, materie
