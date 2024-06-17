@@ -10,7 +10,7 @@ export default function StudentAcademicSituation() {
     return (
       <StudentGrades
         key={key}
-        note={element["catalog"]["Note"]}
+        catalog={element["catalog"]}
         clasa={element["id_clasa"]}
       />
     );

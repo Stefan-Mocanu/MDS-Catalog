@@ -2,28 +2,30 @@ import { Outlet, useLoaderData } from "react-router-dom";
 import NavBar from "./NavBar";
 import "./style/Layout.css";
 
-async function getChildren(id_scoala){
-  const url = "/api/getElevi?id_scoala="+ id_scoala;
+async function getChildren(id_scoala) {
+  const url = "/api/getElevi?id_scoala=" + id_scoala;
   let elevi;
   await fetch(url)
-    .then((response)=>response.json())
-    .then((data)=>{elevi=data})
-    .catch((error)=>console.log(error));
+    .then((response) => response.json())
+    .then((data) => {
+      elevi = data;
+    })
+    .catch((error) => console.log(error));
   return elevi;
 }
 
-export async function parseData(data){
+export async function parseData(data) {
   let roluri = [];
-  for(let key in data){
-    if(data[key]["rol"] === "Parinte"){
+  let ok = true;
+  for (let key in data) {
+    if (data[key]["rol"] === "Parinte") {
       let elevi = await getChildren(data[key]["id"]);
-      for(let elev of elevi){
-        let newRole = data[key];
+      for (let elev of elevi) {
+        let newRole = JSON.parse(JSON.stringify(data[key]));;
         newRole["copil"] = elev;
         roluri.push(newRole);
       }
-    }
-    else{
+    } else {
       let newRole = data[key];
       newRole["copil"] = null;
       roluri.push(newRole);
@@ -31,7 +33,6 @@ export async function parseData(data){
   }
   return roluri;
 }
-
 
 export async function layoutLoader() {
   let roluri = [];
@@ -55,7 +56,7 @@ export default function Layout() {
       <div id="layout">
         <NavBar roluri={roluri} />
         <div id="rolecontent">
-          <Outlet context={context}/>
+          <Outlet context={context} />
         </div>
       </div>
     </>

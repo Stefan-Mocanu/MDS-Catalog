@@ -15,18 +15,24 @@ import { action as addAdminAction } from "./AddAdmin.jsx";
 import AddUser from "./AddUser.jsx";
 import { action as addUserAction } from "./AddUser.jsx";
 import Student from "./Student.jsx";
-import { loader as studentLoader } from "./Student.jsx";
+import { studentLoader } from "./Student.jsx";
 import ParentAcademicSituation from "./ParentAcademicSituation.jsx";
-import Parent from "./Parent.jsx";
+import Parent, { parentLoader } from "./Parent.jsx";
 // import { loader as parentLoader } from "./Parent.jsx";
 import Professor from "./Professor.jsx";
 import { professorLoader } from "./Professor.jsx";
+import ProfessorFeedback from "./ProfessorFeedback.jsx";
+import { loader as professorFeedbackLoader } from "./ProfessorFeedback.jsx";
 import SelectClass from "./SelectClass.jsx";
 import { loader as selectClassLoader } from "./SelectClass.jsx";
 import ClassStatistics from "./ClassStatistics.jsx";
 import { loader as classStatisticsLoader } from "./ClassStatistics.jsx";
 import ClassInfo from "./ClassInfo.jsx";
-import { loader as classInfoLoader } from "./ClassInfo.jsx";
+import {
+  loader as classInfoLoader,
+  action as classInfoAction,
+} from "./ClassInfo.jsx";
+
 import AddRole from "./AddRole.jsx";
 import {
   Routes,
@@ -47,6 +53,16 @@ import GetTokens from "./GetTokens.jsx";
 import AddAnotherAdmin from "./AddAnotherAdmin.jsx";
 import { action as AddAnotherAdminAction } from "./AddAnotherAdmin.jsx";
 import StudentAcademicSituation from "./StudentAcademicSituation.jsx";
+import FeedbackForProfessors from "./FeedbackForProfessors.jsx";
+import { loader as feedbackForProfessorsLoader } from "./FeedbackForProfessors.jsx";
+import { action as feedbackForProfessorsAction } from "./FeedbackForProfessors.jsx";
+import ProfessorStatistics from "./ProfessorStatistics.jsx";
+import { loader as professorStatisticsLoader } from "./ProfessorStatistics.jsx";
+import {action as professorStatisticsAction} from "./ProfessorStatistics.jsx";
+import ParentStatistics from "./ParentStatistics.jsx";
+import {loader as parentStatisticsLoader} from "./ParentStatistics.jsx";
+
+
 function App() {
   //request
   const [isSessionActive, setIsSessionActive] = useState(true);
@@ -140,7 +156,7 @@ function App() {
               path: "schoolstatistics",
               element: <SchoolStatistics />,
               errorElement: <ErrorPage />,
-              loader: schoolStatisticsLoader
+              loader: schoolStatisticsLoader,
             },
           ],
         },
@@ -148,12 +164,19 @@ function App() {
           path: "student/:roleNumber",
           element: <Student />,
           errorElement: <ErrorPage />,
-          // loader: studentLoader,
+          loader: studentLoader,
           children: [
             {
               element: <StudentAcademicSituation />,
               index: true,
               errorElement: <ErrorPage />,
+            },
+            {
+              element: <FeedbackForProfessors />,
+              path: "feedbackforprofessors",
+              errorElement: <ErrorPage />,
+              loader: feedbackForProfessorsLoader,
+              action: feedbackForProfessorsAction,
             },
           ],
         },
@@ -161,13 +184,19 @@ function App() {
           path: "parent/:roleNumber",
           element: <Parent />,
           errorElement: <ErrorPage />,
-          // loader: parentLoader,
+          loader: parentLoader,
           children: [
             {
               element: <ParentAcademicSituation />,
               index: true,
               errorElement: <ErrorPage />,
             },
+            {
+              element: <ParentStatistics />,
+              path: "parentstatistics",
+              errorElement: <ErrorPage />,
+              loader: parentStatisticsLoader,
+            }
           ],
         },
         {
@@ -177,7 +206,6 @@ function App() {
           loader: professorLoader,
           children: [
             {
-              // path: "selectclass",
               element: <SelectClass />,
               index: true,
               errorElement: <ErrorPage />,
@@ -188,19 +216,21 @@ function App() {
               element: <ClassInfo />,
               errorElement: <ErrorPage />,
               loader: classInfoLoader,
+              action: classInfoAction,
             },
-            // {
-            //   path: "allstudentsstatistics",
-            //   element: <AllStudentsStatistics />,
-            //   errorElement: <ErrorPage />,
-            //   loader: AllStudentsStatisticsLoader,
-            // },
-            // {
-            //   path: "allstudentsinfo",
-            //   element: <AllStudentsInfo />,
-            //   errorElement: <ErrorPage />,
-            //   loader: AllStudentsInfoLoader,
-            // },
+            {
+              path: "professorfeedback",
+              element: <ProfessorFeedback />,
+              errorElement: <ErrorPage />,
+              loader: professorFeedbackLoader,
+            },
+            {
+              path: "professorstatistics",
+              element: <ProfessorStatistics />,
+              errorElement: <ErrorPage />,
+              loader: professorStatisticsLoader,
+              action: professorStatisticsAction
+            },
           ],
         },
         {

@@ -13,7 +13,7 @@
   border-top: 3px solid rgb(240, 230, 212);
 }
 
-#nav_bar button {
+#nav_bar button{
   width: 100%;
 }
 #nav_bar h3 {
@@ -33,8 +33,11 @@
   /* height: 10%; */
 }
 
-#useroptions button {
+#useroptions a {
   flex-grow: 1;
+}
+#useroptions button{
+  width: 100%;
 }
 #content {
   flex: 9;

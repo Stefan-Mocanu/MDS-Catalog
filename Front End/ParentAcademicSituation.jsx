@@ -11,7 +11,7 @@ export default function ParentAcademicSituation() {
   return (
     <>
       <h2>Student's academic situation</h2>
-      <StudentGrades note={note} clasa={role["copil"]["clasa"]} />
+      <StudentGrades catalog={catalog} clasa={role["copil"]["clasa"]} />
     </>
   );
 }

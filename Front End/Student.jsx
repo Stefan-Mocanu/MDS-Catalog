@@ -6,15 +6,7 @@ import {
   useParams,
   NavLink,
 } from "react-router-dom";
-
-export async function loader({ params }) {
-  const studentData = { firstName: "NoLastName", lastName: "NoFirstName" };
-  if (params.idStudent == 1) {
-    studentData["firstName"] = "Paul";
-    studentData["lastName"] = "Ciobanu";
-  }
-  return studentData;
-}
+import { layoutLoader } from "./Layout";
 
 function getRole(roluri, roleNumber) {
   const rol = roluri[roleNumber - 1];
@@ -24,56 +16,51 @@ function getRole(roluri, roleNumber) {
   return rol;
 }
 
-export default function Student() {
-  // const studentData = useLoaderData();
-  const roluri = useOutletContext();
-  const roleNumber = useParams()["roleNumber"];
-  const role = getRole(roluri, roleNumber);
-  const [clase, setClase] = useState([]);
-  const [cataloage, setCataloage] = useState([]);
-  useEffect(() => {
-    async function getClase(id_scoala) {
-      const url = "/api/getClase?id_scoala=" + id_scoala;
-      await fetch(url)
-        .then((response) => response.json())
-        .then((response) => {
-          setClase(response);
-          console.log(response);
-        })
-        .catch((error) => console.log(error));
-      return 0;
-    }
-    getClase(role["id"]);
-  }, [role]);
+async function getClase(id_scoala) {
+  let clase;
+  const url = "/api/getClase?id_scoala=" + id_scoala;
+  await fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      clase = data;
+    })
+    .catch((error) => console.log(error));
+  return clase;
+}
 
-  useEffect(() => {
-    async function getCatalog(id_scoala, id_clasa, i) {
-      if(i === 0)
-        setCataloage([]);
-      const url =
-        "/api/viewCatalogElev?id_scoala=" + id_scoala + "&id_clasa=" + id_clasa;
-      await fetch(url)
-        .then((response) => response.json())
-        .then((response) => {
-          let obj = { id_clasa: id_clasa, catalog: response };
-          console.log(cataloage);
-          setCataloage([...cataloage, obj]);
-          console.log(cataloage);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      return 0;
-    }
-    setCataloage([]);
-    // location.reload();
-    clase.forEach((id_clasa, i) => {
-      getCatalog(role["id"], id_clasa, i);
+async function getCatalog(id_scoala, id_clasa) {
+  let catalog;
+  const url =
+    "/api/viewCatalogElev?id_scoala=" + id_scoala + "&id_clasa=" + id_clasa;
+  await fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      catalog = { id_clasa: id_clasa, catalog: data };
+    })
+    .catch((error) => {
+      console.log(error);
     });
-  }, [clase]);
+  return catalog;
+}
 
-  console.log(clase);
-  console.log(cataloage);
+export async function studentLoader({ params }) {
+  const roluri = await layoutLoader();
+  const role = getRole(roluri, params.roleNumber);
+  const clase = await getClase(role["id"]);
+  let cataloage = [];
+  for (let i = 0; i < clase.length; i++) {
+    const catalog = await getCatalog(role["id"], clase[i]);
+    cataloage.push(catalog);
+  }
+  return { rol: role, cataloage: cataloage };
+}
+
+export default function Student() {
+  const data = useLoaderData();
+  console.log(data);
+  const roleNumber = useParams()["roleNumber"];
+  const role = data["rol"];
+  const cataloage = data["cataloage"];
   const context = { rol: role, cataloage: cataloage };
   let pathToThisPage = "/student/" + roleNumber;
   return (
@@ -86,13 +73,14 @@ export default function Student() {
         >
           <button>Student's academic situation</button>
         </NavLink>
-        <button>Feedback from professors</button>
-        <button>Achievements and badges</button>
+        <NavLink 
+          to={"feedbackforprofessors"}
+          end
+          className={({ isActive }) => (isActive ? "selectedbutton" : "")}
+        >
+          <button>Feedback for professors</button></NavLink>
       </div>
       <div id="content">
-        <h2>
-          {/* Student {studentData["firstName"]} {studentData["lastName"]} */}
-        </h2>
         <Outlet context={context} />
       </div>
     </>

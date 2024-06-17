@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+
 	// "strconv"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +25,7 @@ func MediiClase(c *gin.Context) {
 	// Check if the session is active
 	ver := stefan.IsSessionActiveIntern(c)
 	if ver < 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Userul nu este logat"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este logat"})
 		return
 	}
 
@@ -32,7 +33,7 @@ func MediiClase(c *gin.Context) {
 	idcont := ver
 
 	// Obținerea id_scoala din context
-	idScoala := c.PostForm("id_scoala")
+	idScoala := c.Query("id_scoala")
 	if idScoala == "" {
 		fmt.Println("ID scoala lipseste")
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID scoala lipseste"})
@@ -59,7 +60,7 @@ func MediiClase(c *gin.Context) {
 		ROL: "Profesor",
 		ID:  ver,
 	}) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Userul nu este profesor"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este profesor"})
 		return
 	}
 

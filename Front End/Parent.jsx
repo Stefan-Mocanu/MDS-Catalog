@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
-import {
-  NavLink,
-  Outlet,
-  useLoaderData,
-  useOutletContext,
-  useParams,
-} from "react-router-dom";
+import { NavLink, Outlet, useLoaderData, useParams } from "react-router-dom";
+import { layoutLoader } from "./Layout";
 
 function getRole(roluri, roleNumber) {
   const rol = roluri[roleNumber - 1];
@@ -15,36 +10,41 @@ function getRole(roluri, roleNumber) {
   return rol;
 }
 
-export default function Parent() {
-  const roluri = useOutletContext();
-  const roleNumber = useParams()["roleNumber"];
-  const role = getRole(roluri, roleNumber);
-  const [catalog, setCatalog] = useState(null);
-  const [context, setContext] = useState(null);
-  useEffect(() => {
-    async function getCatalog(id_scoala, id_clasa, id_elev) {
-      let url =
-        "/api/viewCatalogParinte?id_scoala=" +
-        id_scoala +
-        "&id_clasa=" +
-        id_clasa +
-        "&id_elev=" +
-        id_elev;
-      await fetch(url)
-        .then((response) => response.json())
-        .then((data) => {
-          setCatalog(data);
-          setContext({ rol: role, catalog: data });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      return catalog;
-    }
-    getCatalog(role["id"], role["copil"]["clasa"], role["copil"]["id"]);
+async function getCatalog(id_scoala, id_clasa, id_elev) {
+  let catalog;
+  let url =
+    "/api/viewCatalogParinte?id_scoala=" +
+    id_scoala +
+    "&id_clasa=" +
+    id_clasa +
+    "&id_elev=" +
+    id_elev;
+  await fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      catalog = data;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  return catalog;
+}
 
-  }, [role]);
-  console.log(catalog);
+export async function parentLoader({ params }) {
+  const roluri = await layoutLoader();
+  const role = getRole(roluri, params.roleNumber);
+  const catalog = await getCatalog(
+    role["id"],
+    role["copil"]["clasa"],
+    role["copil"]["id"]
+  );
+  return { rol: role, catalog: catalog };
+}
+
+export default function Parent() {
+  const data = useLoaderData();
+  const roleNumber = useParams()["roleNumber"];
+  const catalog = data["catalog"];
 
   let pathToThisPage = "/parent/" + roleNumber;
   return (
@@ -57,15 +57,19 @@ export default function Parent() {
         >
           <button>Student's academic situation</button>
         </NavLink>
-        <button>Feedback from professors</button>
-        <button>Achievements and badges</button>
-        <button>Child's progress and graphics</button>
-        <button>Discuss with professors</button>
+
+        <NavLink
+          to={"parentstatistics"}
+          end
+          className={({ isActive }) => (isActive ? "selectedbutton" : "")}
+        >
+          <button>Child's progress and graphics</button>
+        </NavLink>
       </div>
 
       <div id="content">
         <h2></h2>
-        {catalog && <Outlet context={context} />}
+        {catalog && <Outlet context={data} />}
       </div>
     </>
   );

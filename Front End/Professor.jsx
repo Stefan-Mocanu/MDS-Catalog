@@ -1,4 +1,10 @@
-import { Outlet, useLoaderData, useOutletContext } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useLoaderData,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { layoutLoader } from "./Layout";
 
 function getRol(roluri, roleNumber) {
@@ -17,10 +23,9 @@ async function getClasses(role) {
   await fetch(url, {
     method: "POST",
     body: formData,
-
   })
     .then((response) => response.json())
-    .then((data) => (classes = data))
+    .then((data) => (classes = data["data"]))
     .catch((error) => console.log(error));
   return classes;
 }
@@ -34,20 +39,37 @@ export async function professorLoader({ params }) {
 }
 
 export default function Professor() {
-  const data = useLoaderData();
-  console.log(data);
-  //de facut getRole sau de verificat rolul in loader
+  // const data = useLoaderData();
+  const roleNumber = useParams()["roleNumber"];
+  // console.log(data);
+
+  let pathToThisPage = "/professor/" + roleNumber;
   return (
     <>
       <div id="useroptions">
-        <button>Classes</button>
-        <button>All students</button>
-        <button>Statistics & feedback</button>
-        <button>Chat</button>
+        <NavLink
+          to={pathToThisPage}
+          end
+          className={({ isActive }) => (isActive ? "selectedbutton" : "")}
+        >
+          <button>Classes</button>
+        </NavLink>
+        <NavLink
+          to={"professorfeedback"}
+          className={({ isActive }) => (isActive ? "selectedbutton" : "")}
+        >
+          <button>Feedback</button>
+        </NavLink>
+        {/* <NavLink
+          to={"professorstatistics"}
+          className={({ isActive }) => (isActive ? "selectedbutton" : "")}
+        >
+          <button>Statistics</button>
+        </NavLink> */}
       </div>
       <div id="content">
         <h2></h2>
-        {/* <Outlet /> */}
+        <Outlet />
       </div>
     </>
   );
