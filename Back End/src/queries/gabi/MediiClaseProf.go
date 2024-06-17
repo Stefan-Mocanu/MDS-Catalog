@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"strconv"
+	// "strconv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -28,17 +28,31 @@ func MediiClase(c *gin.Context) {
 		return
 	}
 
-	// Extract professor ID from query string
-	idProfesorStr := c.Query("id_profesor")
-	if idProfesorStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID profesor lipsește"})
+	// Obținerea idcont din sesiune
+	idcont := ver
+
+	// Obținerea id_scoala din context
+	idScoala := c.PostForm("id_scoala")
+	if idScoala == "" {
+		fmt.Println("ID scoala lipseste")
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID scoala lipseste"})
 		return
 	}
-	idProfesor, err := strconv.Atoi(idProfesorStr)
+
+	// Interogare pentru a obține id_profesor din baza de date
+	var idProfesor int
+	query := "SELECT id FROM profesor WHERE id_cont = ? AND id_scoala = ?"
+	err := db.QueryRow(query, idcont, idScoala).Scan(&idProfesor)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID profesor invalid"})
+		fmt.Println("Eroare la obținerea id_profesor din baza de date:", err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la obținerea id_profesor din baza de date"})
 		return
 	}
+	// idProfesor, err := strconv.Atoi(idProfesorStr)
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "ID profesor invalid"})
+	// 	return
+	// }
 
 	// Verify if the user has the role of Professor and is associated with the specified professor
 	if !stefan.VerificareRol(stefan.Rol{
