@@ -74,11 +74,11 @@ func GetEvolutie(c *gin.Context) {
 			diferente = append(diferente, diferenta)
 		}
 	}
-	date := Data2{
+	date := []Data2{{
 		X:   numeElevi,
 		Y:   diferente,
 		TIP: "bar",
-	}
+	}}
 	c.IndentedJSON(http.StatusOK, gin.H{"data": date, "layout": map[string]interface{}{
 		"Title": "Diferenta mediilor inainte de " + data + " si dupa",
 	}})
