@@ -72,11 +72,11 @@ func EleviPromov(c *gin.Context) {
 	defer rows.Close()
 
 	// Slices to store data for the dot plot
-	var xValues []int
+	var xValues []string
 	var yValues []int
 
 	for rows.Next() {
-		var idClasa int
+		var idClasa string
 		var procent float64
 		if err := rows.Scan(&idClasa, &procent); err != nil {
 			log.Printf("Error scanning results: %v", err)

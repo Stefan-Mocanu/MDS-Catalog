@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	// "strconv"
-
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -29,10 +27,7 @@ func MediiClase(c *gin.Context) {
 		return
 	}
 
-	// Obținerea idcont din sesiune
-	idcont := ver
-
-	// Obținerea id_scoala din context
+	// Obținerea id_scoala, id_clasa și materie din context
 	idScoala := c.Query("id_scoala")
 	if idScoala == "" {
 		fmt.Println("ID scoala lipseste")
@@ -40,22 +35,21 @@ func MediiClase(c *gin.Context) {
 		return
 	}
 
-	// Interogare pentru a obține id_profesor din baza de date
-	var idProfesor int
-	query := "SELECT id FROM profesor WHERE id_cont = ? AND id_scoala = ?"
-	err := db.QueryRow(query, idcont, idScoala).Scan(&idProfesor)
-	if err != nil {
-		fmt.Println("Eroare la obținerea id_profesor din baza de date:", err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Eroare la obținerea id_profesor din baza de date"})
+	idClasa := c.Query("id_clasa")
+	if idClasa == "" {
+		fmt.Println("ID clasa lipseste")
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID clasa lipseste"})
 		return
 	}
-	// idProfesor, err := strconv.Atoi(idProfesorStr)
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "ID profesor invalid"})
-	// 	return
-	// }
 
-	// Verify if the user has the role of Professor and is associated with the specified professor
+	materie := c.Query("materie")
+	if materie == "" {
+		fmt.Println("Materie lipseste")
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Materie lipseste"})
+		return
+	}
+
+	// Verify if the user has the role of Professor
 	if !stefan.VerificareRol(stefan.Rol{
 		ROL: "Profesor",
 		ID:  ver,
@@ -64,15 +58,15 @@ func MediiClase(c *gin.Context) {
 		return
 	}
 
-	// Query to get the average grade for each class the professor teaches
+	// Query to get the average grade for the specified class and subject
 	q := `
 		SELECT n.id_clasa, AVG(n.nota) AS medie
 		FROM note n
 		JOIN incadrare i ON n.id_scoala = i.id_scoala AND n.id_clasa = i.id_clasa AND n.nume_disciplina = i.nume_disciplina
-		WHERE i.id_profesor = ?
+		WHERE n.id_scoala = ? AND n.id_clasa = ? AND n.nume_disciplina = ?
 		GROUP BY n.id_clasa
 	`
-	rows, err := db.Query(q, idProfesor)
+	rows, err := db.Query(q, idScoala, idClasa, materie)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Eroare la interogarea bazei de date"})
 		return
