@@ -27,12 +27,12 @@ func FeedbackuriProfesori(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este logat"})
 		return
 	}
-
+	idScoala := c.Query("id_scoala")
 	// Verificăm dacă utilizatorul are rolul de Administrator sau alt rol necesar
 	if !stefan.VerificareRol(stefan.Rol{
 		ROL:    "Administrator", // Modifică rolul în funcție de cerințe
 		ID:     ver,
-		SCOALA: "", // Poate fi completat cu ID-ul școlii dacă este necesar
+		SCOALA: idScoala, // Poate fi completat cu ID-ul școlii dacă este necesar
 	}) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Accesul interzis"})
 		return
