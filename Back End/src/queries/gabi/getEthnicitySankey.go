@@ -50,7 +50,7 @@ func EthnicitySankey(c *gin.Context) {
 		return
 	}
 
-	// Extragem id-ul școlii din query string
+	// Extract school ID from query string
 	idScoalaStr := c.Query("id_scoala")
 	if idScoalaStr == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID scoala lipsește"})
@@ -62,7 +62,7 @@ func EthnicitySankey(c *gin.Context) {
 		return
 	}
 
-	// Verificăm dacă utilizatorul are rolul de Administrator pentru școala specificată
+	// Verify user has Administrator role for the specified school
 	if !stefan.VerificareRol(stefan.Rol{
 		ROL:    "Administrator",
 		SCOALA: idScoalaStr,
@@ -72,11 +72,15 @@ func EthnicitySankey(c *gin.Context) {
 		return
 	}
 
-	// Interogare pentru a obține toate etniile distincte din feedback-uri pentru școala specificată
+	// Query to get the number of positive and negative feedbacks per ethnicity
 	q := `
-		SELECT DISTINCT etnie
-		FROM elev
-		WHERE id_scoala = ?
+		SELECT e.etnie, 
+		       SUM(CASE WHEN f.tip = 1 THEN 1 ELSE 0 END) AS pozitive,
+		       SUM(CASE WHEN f.tip = 0 THEN 1 ELSE 0 END) AS negative
+		FROM elev e
+		JOIN feedback f ON e.id_elev = f.id_elev
+		WHERE e.id_scoala = ?
+		GROUP BY e.etnie
 	`
 	rows, err := db.Query(q, idScoala)
 	if err != nil {
@@ -86,19 +90,50 @@ func EthnicitySankey(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	// Slice pentru a stoca etniile
 	var etnii []string
+	var pozitive []int
+	var negative []int
 
 	for rows.Next() {
-		var ethnicity string
-		if err := rows.Scan(&ethnicity); err != nil {
+		var etnie string
+		var poz int
+		var neg int
+		if err := rows.Scan(&etnie, &poz, &neg); err != nil {
 			fmt.Println("Eroare la scanarea rezultatelor:", err)
 			continue
 		}
-		etnii = append(etnii, ethnicity)
+		etnii = append(etnii, etnie)
+		pozitive = append(pozitive, poz)
+		negative = append(negative, neg)
 	}
 
-	// Definim structura de date pentru Plotly Sankey
+	// Define Sankey data structure for Plotly
+	var labels = []string{}
+	var colors = []string{}
+	var sources = []int{}
+	var targets = []int{}
+	var values = []int{}
+
+	// Add nodes for each ethnicity
+	for i, etnie := range etnii {
+		labels = append(labels, etnie+" Pozitiv")
+		labels = append(labels, etnie+" Negativ")
+		colors = append(colors, "green")
+		colors = append(colors, "red")
+		sources = append(sources, i*2)            // Pozitiv
+		sources = append(sources, i*2+1)          // Negativ
+		targets = append(targets, len(etnii)*2)   // Target for Pozitiv
+		targets = append(targets, len(etnii)*2+1) // Target for Negativ
+		values = append(values, pozitive[i])
+		values = append(values, negative[i])
+	}
+
+	// Add nodes for total positive and negative feedbacks
+	labels = append(labels, "Total Pozitiv")
+	labels = append(labels, "Total Negativ")
+	colors = append(colors, "blue")
+	colors = append(colors, "blue")
+
 	sankeyData := SankeyData{
 		Type:        "sankey",
 		Orientation: "h",
@@ -109,19 +144,19 @@ func EthnicitySankey(c *gin.Context) {
 				Color: "black",
 				Width: 0.5,
 			},
-			Label: etnii,                      // Utilizăm aici toate etniile obținute din feedback-uri
-			Color: make([]string, len(etnii)), // Alocăm culori pentru fiecare etnie
+			Label: labels,
+			Color: colors,
 		},
 		Link: Link{
-			Source: []int{0, 1, 2, 3, 4, 5},       // Exemplu: Sursa poate fi indexată conform ordinei etniilor
-			Target: []int{2, 3, 4, 5, 0, 1},       // Exemplu: Ținta poate fi indexată conform ordinei etniilor
-			Value:  []int{10, 20, 30, 40, 50, 60}, // Exemplu: Valoare pentru conexiuni între etnii
+			Source: sources,
+			Target: targets,
+			Value:  values,
 		},
 	}
 
 	data := []SankeyData{sankeyData}
 
-	// Definim layout-ul pentru graficul Sankey
+	// Define layout for Sankey chart
 	layout := gin.H{
 		"title": "Feedback Pozitive/Negative pe Etnie",
 		"font": gin.H{
@@ -129,6 +164,6 @@ func EthnicitySankey(c *gin.Context) {
 		},
 	}
 
-	// Returnăm datele sub formă de răspuns JSON
+	// Return JSON response
 	c.IndentedJSON(http.StatusOK, gin.H{"data": data, "layout": layout})
 }

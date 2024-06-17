@@ -28,11 +28,17 @@ func FeedbackuriProfesori(c *gin.Context) {
 		return
 	}
 	idScoala := c.Query("id_scoala")
+	if idScoala == "" {
+		fmt.Println("ID scoala lipseste")
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID scoala lipseste"})
+		return
+	}
+
 	// Verificăm dacă utilizatorul are rolul de Administrator sau alt rol necesar
 	if !stefan.VerificareRol(stefan.Rol{
-		ROL:    "Administrator", // Modifică rolul în funcție de cerințe
+		ROL:    "Administrator",
 		ID:     ver,
-		SCOALA: idScoala, // Poate fi completat cu ID-ul școlii dacă este necesar
+		SCOALA: idScoala,
 	}) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Accesul interzis"})
 		return
@@ -40,13 +46,15 @@ func FeedbackuriProfesori(c *gin.Context) {
 
 	// Interogare pentru a obține numărul de feedback-uri pentru fiecare profesor
 	q := `
-		SELECT p.nume_profesor AS profesor, COUNT(f.id_feedback) AS numar
+		SELECT p.nume AS profesor, COUNT(f.id_feedback) AS numar
 		FROM feedback f
-		JOIN profesor p ON f.id_profesor = p.id_profesor
-		GROUP BY p.nume_profesor
+		JOIN incadrare i ON f.id_scoala = i.id_scoala AND f.id_clasa = i.id_clasa AND f.nume_disciplina = i.nume_disciplina
+		JOIN profesor p ON i.id_profesor = p.id AND i.id_scoala = p.id_scoala
+		WHERE f.id_scoala = ?
+		GROUP BY p.nume
 		ORDER BY numar DESC
 	`
-	rows, err := db.Query(q)
+	rows, err := db.Query(q, idScoala)
 	if err != nil {
 		fmt.Println("Eroare la interogarea bazei de date:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Eroare la interogarea bazei de date"})
@@ -86,5 +94,4 @@ func FeedbackuriProfesori(c *gin.Context) {
 
 	// Returnăm datele sub formă de răspuns JSON
 	c.IndentedJSON(http.StatusOK, gin.H{"data": data})
-
 }
