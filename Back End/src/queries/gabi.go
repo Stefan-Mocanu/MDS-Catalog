@@ -86,5 +86,5 @@ func Route_gabi(router gin.IRouter) {
 
 	router.GET("/getEthnicityClassStats", gabi.EthnicityClassStats)
 
-	router.GET("/ChatFeedbackProf", gabi.FeedbackuriProfesori)
+	//router.GET("/ChatFeedbackProf", gabi.FeedbackuriProfesori)
 }
