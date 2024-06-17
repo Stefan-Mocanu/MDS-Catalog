@@ -52,6 +52,7 @@ func MediiClase(c *gin.Context) {
 	// Verify if the user has the role of Professor
 	if !stefan.VerificareRol(stefan.Rol{
 		ROL: "Profesor",
+		SCOALA: idScoala,
 		ID:  ver,
 	}) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Userul nu este profesor"})
